@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="css/style.css">
+<html>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link
+  href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+  rel="stylesheet">
+
+<script>
+  // dataSource = 'file';
+  let dataSource = 'url'
+
+  let projectID = 'CES3'
+  let productID = 'A'
+  let versionID = 'v1'
+
+  let sankeyData = { links: [], nodes: [], order: [] }
+</script>
+
+<body>
+  <div class="triangle-container">
+    <div class="beta-label">CONCEPT</div>
+  </div>
+  <div id="main">
+    <div id="downloadUploadFile"><span style="margin-left:5px;margin-top:4px;margin-right:10px;color:#666">Open
+        Data</span></div>
+    <div id="buttonsContainerReference">
+      <div id="buttonsContainer">
+        <div id="scenarioButtons"></div>
+        <div id="yearButtons"></div>
+        <div class="buttonTitles"
+          style="visibility:hidden;position:absolute;top:25px;left:-80px;width:200px;font-size:12px;font-weight:400;text-align:right;">
+          Cluster</div>
+        <div class="buttonTitles"
+          style="visibility:hidden;position:absolute;top:65px;left:-80px;width:200px;font-size:12px;font-weight:400;text-align:right;">
+          Jaar</div>
+      </div>
+    </div>
+    <div id="loadFileDialog">
+      <script>
+        // Update the div content dynamically
+        document.getElementById('loadFileDialog').innerHTML = `
+      <span style="font-weight:300;font-size:28px">Importeer xlsx-bestand </span>
+        <br><br>
+        <span style="font-weight:400;font-size:12px">script: 
+          ${projectID}_${productID}_${versionID}</span>
+
+          <br><br><br>
+      `;
+      </script>
+    </div>
+    <div id="mainContainer">
+
+      <div id="mainContainerHeader"></div>
+      <div id="mainContainerBackdrop"></div>
+      <div id="mainContainerOverlay"></div>
+
+      <div id="sankeyContainer">
+        <div id="sankeyContainer_header"></div>
+        <div id="sankeyContainer_main"></div>
+      </div>
+
+    </div>
+    <div id="remarksContainer">
+
+    </div>
+    <div id="popupContainer"> </div>
+
+
+    <div id="tempCO2Overview"></div>
+
+    <!-- <div id="waccButtons"></div> -->
+
+
+
+
+    <!-- <div id="yearButtons"></div> -->
+
+    <div id="showValueOnHover"></div>
+
+    <div id="toelichting">
+    </div>
+  </div>
+</body>
+
+</html>
+<script src="js/xlsx.full.min.js"></script>
+<!-- <script src="js/popupGenerator.js"></script> -->
+<script src="//d3js.org/d3.v7.min.js" charset="utf-8"></script>
+<script src="js/drawMainContainer.js" charset="utf-8"></script>
+<script src="js/loadFileDialog.js"></script>
+<script src="js/fileLoadButton.js"></script>
+
+<!-- <script src="js/drawWaterfall.js" charset="utf-8"></script> -->
+<script src="js/d3-collection.v1.min.js"></script>
+<script src="js/d3-sankey-diagram-generic.js"></script>
+<script src="js/genericSankey.js"></script>
