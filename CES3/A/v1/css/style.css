@@ -231,6 +231,7 @@ body {
   gap: 20px;
   font-size: 14px;
   overflow-y: auto; /* Adds vertical scrolling if the content exceeds the height */
+  overflow-x:hidden;
   pointer-events: all;
 }
 
