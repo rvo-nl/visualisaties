@@ -1411,11 +1411,11 @@ function initSankey (config) {
         if (containsInfoOrAanname(sankeyData.nodes[i].remark[currentScenarioID + 1])) {return 1} else {return 0}
       }).on('click', function () {
         const popup = document.createElement('div')
-
         // const remarksList = d3.select('#remarksContainer')
         popup.id = 'popup'
 
         d3.select('#popupContainer').style('background-color', 'rgba(0,0,0,0.3)')
+        console.log('JA')
 
         console.log('currentScenarioID: ' + currentScenarioID)
 
@@ -1943,7 +1943,6 @@ function drawBarGraph (data, config) {
     //   .style('visibility', 'hidden')
     //   .style('pointer-events', 'none')
     })
-  d3.select('#popupContainer').on('click', function () {console.log('high')})
   // document.documentElement.style.overflow = 'hidden'; // For <html>
   document.body.style.overflow = 'hidden'; // For <body>ß
 

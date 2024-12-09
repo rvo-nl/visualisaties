@@ -20471,7 +20471,9 @@
               popup.id = 'popup';
               d3.select('#popupContainer').style('background-color', 'rgba(0,0,0,0.3)');
               console.log('currentScenarioID: ' + currentScenarioID);
-              
+              document.body.style.overflow = 'hidden'
+              //SNEEUW
+
               // Parse remarksData for the current scenario
               const remarksData = JSON.parse(d3.select(this).attr('remarksData'))[currentScenarioID+1];
               
@@ -20570,6 +20572,7 @@
               closeButton.onclick = function() {
                   d3.select('#popupContainer').style('background-color', 'rgba(0,0,0,0)');
                   popup.remove();  // Remove popup when button is clicked
+                  document.body.style.overflow = 'auto'
               };
               
               // Append list and close button to popup
