@@ -1415,7 +1415,7 @@ function initSankey (config) {
         popup.id = 'popup'
 
         d3.select('#popupContainer').style('background-color', 'rgba(0,0,0,0.3)')
-        console.log('JA')
+        document.body.style.overflow = 'hidden'
 
         console.log('currentScenarioID: ' + currentScenarioID)
 
@@ -1514,7 +1514,6 @@ function initSankey (config) {
           popup.remove() // Remove popup when button is clicked
           document.body.style.overflow = 'auto'
         }
-
         // Append list and close button to popup
         popup.appendChild(listContainer)
         popup.appendChild(closeButton)
