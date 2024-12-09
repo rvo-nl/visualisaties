@@ -1524,13 +1524,13 @@ function initSankey (config) {
         const popupContainer = document.getElementById('popupContainer')
         popupContainer.appendChild(popup)
 
-        d3.select('#popupContainer').style('background-color', 'rgba(0,0,0,0)').style('pointer-events', 'all')
+        // d3.select('#popupContainer').style('background-color', 'rgba(0,0,0,0)').style('pointer-events', 'all')
         // disable scrolling on body
-        const observer = new MutationObserver(() => {
-          if (document.body.style.overflow !== 'hidden') {
-            document.body.style.setProperty('overflow', 'hidden', 'important')
-          }
-        })
+        // const observer = new MutationObserver(() => {
+        //   if (document.body.style.overflow !== 'hidden') {
+        //     document.body.style.setProperty('overflow', 'hidden', 'important')
+        //   }
+        // })
 
         observer.observe(document.body, { attributes: true, attributeFilter: ['style'] })
 
@@ -1944,6 +1944,7 @@ function drawBarGraph (data, config) {
     })
   // document.documentElement.style.overflow = 'hidden'; // For <html>
   document.body.style.overflow = 'hidden'; // For <body>ß
+  d3.select('#popupContainer').style('background-color', 'rgba(0,0,0,0.3)').style('pointer-events', 'all')
 
   canvas.append('path')
     .style('pointer-events', 'none')
