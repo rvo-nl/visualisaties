@@ -2076,7 +2076,7 @@ function drawBarGraph (data, config) {
     })
 
   // Add x-axis labels
-  const varianten = ['2019', '2020', '2019', '2020', '2019', '2020', '2019', '2020', '2019', '2020', '2019', '2020', '2019', '2020' ]
+  const varianten = ['2021', '2035', '2021', '2035', '2021', '2035', '2021', '2035', '2021', '2035', '2021', '2035', '2021', '2035' ]
   const posy = height + 165 + 40 // Y POSITION
   shiftXAdditional = 96 + 10
 
