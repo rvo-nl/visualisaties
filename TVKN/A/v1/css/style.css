@@ -497,7 +497,7 @@ table {
   width: 50%; /* Adjust width as needed */
   text-align: left;
   margin: 20px auto; /* Center the table horizontally */
-  border: 0px solid #eee;
+  border: 1px solid #FFF;
 }
 
 th, td {
