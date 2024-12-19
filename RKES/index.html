@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="css/style.css">
+<html>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link
+  href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+  rel="stylesheet">
+
+<body>
+  <div class="triangle-container">
+    <div class="beta-label">BETA</div>
+  </div>
+  <div id="mainContainer">
+    <div id="mainContainerBackdrop"></div>
+    <div id="mainContainerOverlay"></div>
+    <div id="chartArea">
+      <div id="afbouw">
+        <svg class="chart_opbouw"></svg>
+      </div>
+      <div id="ccs">
+        <svg class="chart_ccs"></svg>
+      </div>
+      <div id="opbouw">
+        <svg class="chart_afbouw"></svg>
+      </div>
+    </div>
+    <div id="sankeyContainer">
+      <div id="sankeyContainer_header"></div>
+      <div id="sankeyContainer_main"></div>
+    </div>
+  </div>
+</body>
+
+</html>
+<script src="js/xlsx.full.min.js"></script>
+<script src="//d3js.org/d3.v7.min.js" charset="utf-8"></script>
+<script src="js/drawMainContainer.js" charset="utf-8"></script>
+<script src="js/drawWaterfall.js" charset="utf-8"></script>
+<script src="js/d3-collection.v1.min.js"></script>
+<script src="js/d3-sankey-diagram-generic.js"></script>
+<script src="js/genericSankey.js"></script>

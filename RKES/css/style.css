@@ -1,0 +1,183 @@
+
+
+.axis text {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+html {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: "Roboto";
+  position: absolute;
+  /* width: 1200px;
+  height: 1200px; */
+  background-color: #E8F0F4;
+  height: 100%;
+  width:100%;
+  margin: 0;
+  /* margin-left: 40px; */
+  font-size: 12px;
+  pointer-events: none;
+  -webkit-user-select: none;
+  /* Safari */
+  -ms-user-select: none;
+  /* IE 10 and IE 11 */
+  user-select: none;
+  /* Standard syntax */
+
+}
+
+#header {
+  width: 1200px;
+  height: 360px;
+  z-index: 2000;
+  top: 0px;
+  position: relative;
+}
+
+
+
+#mainContainer {
+  width: 1920px;
+  height: 1080px;
+  /* margin-left: 50px; */
+  position: relative;
+  transform-origin: top left;
+  transform: scale(0.85)
+    /* background-color: green */
+    /* z-index: 2000; */
+}
+
+
+
+#mainContainerBackdrop {
+  margin-left: 50px;
+  width: 100%;
+  height: 100%;
+  top: 0px;
+  /* position: absolute; */
+  z-index: 1;
+  position: absolute;
+}
+
+#mainContainerOverlay {
+  margin-left: 50px;
+  width: 100%;
+  height: 100%;
+  top: 0px;
+  z-index: 3000;
+  position: absolute;
+}
+
+#chartArea {
+  margin-left: 50px;
+  width: 100%;
+  height: 825px;
+  top: 360px;
+  position: absolute;
+  /* visibility: hidden; */
+}
+
+#afbouw {
+  width: 50%;
+  height: 35%;
+  top: 0px;
+  z-index: 2000;
+  position: relative;
+
+}
+
+#ccs {
+  width: 50%;
+  height: 10%;
+  top: 0px;
+  z-index: 2000;
+  position: relative;
+}
+
+#opbouw {
+  width: 50%;
+  height: 35%;
+  z-index: 2000;
+  position: relative;
+}
+
+#sankeyContainer {
+  /* width: 1920px; */
+  margin-left: 50px;
+  width: 1440px;
+  height: 860px;
+  z-index: 4000;
+  top: 135px;
+
+  position: relative;
+  /* background-color: white; */
+  visibility: hidden;
+  /* box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px; */
+}
+
+#sankeyContainer_header {
+  top: 0px;
+  height: 45px;
+  width: 100%;
+  background-color: #E8F0F4;
+}
+
+#sankeyContainer_main {
+  width: 100%;
+  height: 100%;
+  background-color: #E8F0F4;
+}
+
+
+#blinder {
+  visibility: hidden;
+  position: fixed;
+  z-index: 3000;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  background-color: #333;
+  pointer-events: none;
+}
+
+.beta-label {
+  position: absolute;
+  top: 37px;
+  right: -16px;
+  /* Adjust based on the size of the triangle */
+  color: #fff;
+  font-size: 15px;
+  font-weight: 400;
+  /* Change text color as needed */
+}
+
+.triangle-container {
+  position: fixed;
+  /* overflow: hidden.; */
+  top: -11px;
+  right: -46px;
+  width: 0;
+  height: 0;
+  border-left: 70px solid transparent;
+  border-right: 70px solid transparent;
+  border-bottom: 70px solid #333;
+  /* Change color as needed */
+  text-align: center;
+  z-index: 2000;
+  transform: rotate(45deg);
+  pointer-events: none;
+  opacity: 0.7;
+  /* Set a high z-index to ensure it appears above other content */
+}

@@ -1,0 +1,523 @@
+
+
+.axis text {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+html {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+
+}
+
+body {
+  font-family: "Roboto";
+  margin: 0;
+  /* position: absolute; */
+  /* width: 1200px;
+  height: 1200px; */
+  background-color: #E8F0F4;
+  /* height: 100%; */
+  width:100%;
+  /* margin-left: 50px; */
+  /* margin-top: 50px; */
+  /* margin-left: 40px; */
+  font-size: 12px;
+  pointer-events: none;
+  min-width:900px;
+
+  /* overflow-x: hidden; */
+  /* -webkit-user-select: none; */
+  /* Safari */
+  /* -ms-user-select: none; */
+  /* IE 10 and IE 11 */
+  /* user-select: none; */
+  /* Standard syntax */
+
+}
+
+
+#main {
+  width: 100%;
+  min-height: 100%; /* Allows the container to grow and scroll */
+  position: relative; 
+}
+
+
+#header {
+  width: 1100px;
+  height: 320px;
+  z-index: 2000;
+  top: 0px;
+  position: relative;
+}
+
+
+
+#mainContainer {
+  width: 100%;
+  top:570px;
+  position: relative; /* Keep as relative only if layout depends on it */
+}
+
+
+
+#mainContainerBackdrop {
+  /* margin-left: 50px; */
+  width: 100%;
+  height: 100%;
+  top: 0px;
+  /* position: absolute; */
+  z-index: 1;
+  position: absolute;
+}
+
+#mainContainerOverlay {
+  /* margin-left: 50px; */
+  width: 100%;
+  height: 100%;
+  top: 0px;
+  z-index: 3000;
+  position: absolute;
+}
+
+#chartArea {
+  margin-left: 50px;
+  width: 100%;
+  height: 825px;
+  top: 360px;
+  position: absolute;
+  /* visibility: hidden; */
+}
+
+#afbouw {
+  width: 50%;
+  height: 35%;
+  top: 0px;
+  z-index: 2000;
+  position: relative;
+
+}
+
+#ccs {
+  width: 50%;
+  height: 10%;
+  top: 0px;
+  z-index: 2000;
+  position: relative;
+}
+
+#opbouw {
+  width: 50%;
+  height: 35%;
+  z-index: 2000;
+  position: relative;
+}
+
+#sankeyContainer {
+  /* width: 1920px; */
+  width: 100%;;
+  height: 1260px;
+  z-index: 4000;
+  top: 0px;
+  left:0px;
+
+
+  position: relative;
+  /* background-color: white; */
+  visibility: hidden;
+  /* box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px; */
+}
+
+#sankeyContainer_header {
+  top: 0px;
+  height: 0px;
+  width: 100%;
+  /* position:absolute; */
+  /* background-color: #E8F0F4; */
+  /* background-color: red; */
+}
+
+#mainContainerHeader{
+  margin:0;
+  top: 0px;
+  width:100%;
+  background-color: none;
+  height:230px;
+}
+
+#sankeyContainer_main {
+  width: 100%;
+  height: 100%;
+  background-color: #E8F0F4;
+}
+
+
+#blinder {
+  visibility: hidden;
+  position: fixed;
+  z-index: 3000;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  background-color: #333;
+  pointer-events: none;
+}
+
+.beta-label {
+  position: absolute;
+  top: 54px;
+  right: -36px;
+  /* Adjust based on the size of the triangle */
+  color: #fff;
+  font-size: 17px;
+  font-weight: 400;
+  /* Change text color as needed */
+}
+
+.triangle-container {
+  position: fixed;
+  /* overflow: hidden.; */
+  top: -13px;
+  right: -58px;
+  width: 0;
+  height: 0;
+  border-left: 90px solid transparent;
+  border-right: 90px solid transparent;
+  border-bottom: 90px solid #333;
+  /* Change color as needed */
+  text-align: center;
+  z-index: 200000;
+  transform: rotate(45deg);
+  pointer-events: none;
+  opacity: 0.7;
+  /* Set a high z-index to ensure it appears above other content */
+}
+
+#popupContainer {
+  position: fixed;
+  top: 0px;
+  left:0px;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  background-color: rgba(0, 0, 0, 0f); /* Keeps background dim when the popup is open */
+}
+
+#popup {
+  position: relative; /* Ensures child elements are positioned relative to this div */
+  width: 60%; /* Adjusted width for better responsiveness */
+  max-height: 90vh; /* Ensures the popup's height does not exceed 90% of the viewport height */
+  background-color: rgba(255,255,255,0.95);
+  color: black;
+  padding: 30px;
+  border-radius: 10px;
+  text-align: left; /* Aligns text to the left for a better list display */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  padding-right: 120px;
+  gap: 20px;
+  font-size: 14px;
+  overflow-y: auto; /* Adds vertical scrolling if the content exceeds the height */
+  overflow-x:hidden;
+  pointer-events: all;
+}
+
+
+ul {
+  list-style-type: none; /* Removes default bullets */
+  padding: 0;
+  margin: 20px 0; /* Adds some spacing between the list and other content */
+}
+
+li {
+  display: flex; /* Aligns icon and text horizontally */
+  align-items: flex-start; /* Aligns icon to the top of the list item */
+  margin-bottom: 30px; /* Adds spacing between list items */
+}
+
+li svg {
+  flex-shrink: 0; /* Ensures the icon doesn't shrink */
+  width: 70px;
+  height: 24px;
+  margin-right: 12px; /* Adds spacing between icon and text */
+  margin-top: 4px; /* Slight top margin to align the icon better with text */
+}
+
+li span {
+  font-size: 14px; /* Ensures the text has consistent size */
+  line-height: 1.9;
+}
+
+#popupText {
+  margin-top: 10px;
+}
+
+
+#closeButton {
+  position: sticky;
+  bottom: 0; /* Sticks to the bottom */
+  margin-right: -70px; /* Brings the button closer to the right */
+  padding: 8px 12px;
+  background-color: #333;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  pointer-events: all;
+  align-self: flex-end; /* Ensures alignment to the right */
+}
+
+#closeButton:hover {
+  background-color: #666;
+}
+
+#remarksContainer{
+  /* position:relative; */
+  position:absolute;
+  /* top:100px; */
+  margin-top:0px;
+  padding-bottom:200px;
+  /* background-color: red; */
+  margin-left:100px;
+  margin-right:200px;
+  max-width:1200px;
+  pointer-events: all;
+  z-index:100
+
+}
+
+
+#energieDragersContainer{
+  /* position:relative; */
+  position:absolute;
+  /* width:100%; */
+  margin-top:0px;
+  padding-bottom:200px;
+  /* background-color: red; */
+  margin-left:100px;
+  margin-right:100px;
+  max-width:900px;
+  pointer-events: all;
+  z-index:100
+
+}
+
+#tempCO2Overview{
+  position:absolute;
+  top:1050px;
+  left:70px;
+  width:500px;
+  height:150px;
+  background-color:none;
+}
+
+#scenarioButtons {
+ 
+  position:absolute;
+  top:18px;
+  left:140px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px; /* Adds space between the buttons */
+  pointer-events: all;
+}
+
+#yearButtons {
+  position:absolute;
+  top:58px;
+  left:140px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px; /* Adds space between the buttons */
+  pointer-events: all;
+}
+
+
+
+button{
+  background-color: #E8F0F4;
+  /* border: none; */
+  border-width:0.5px;
+  border-color: #eee;
+  font-size: 12px;
+  font-weight:500;
+  border-radius: 5px;
+  margin: 0px;
+  border: '1px solid #eee';
+  color:#333;
+  padding: 2px 5px !important; /* Adjust spacing inside the button */
+ 
+}
+
+button.highlighted {
+  background-color: #444; /* Blue background for highlight */
+  color: white; /* White text for better contrast */
+  border-color:none; 
+}
+
+#loadFileDialog {
+  pointer-events: none;
+  visibility: visible;
+  width: 100%;
+  height: 100%;
+  background-color:#E8F0F4;
+  z-index: 10000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  font-size:14px;
+  line-height:25px;
+  
+  padding-left:100px;
+  padding-top:100px;
+
+}
+
+
+/* Style the label that replaces the file input */
+input[type="file"]{
+  display: inline-block;
+  font-size: 14px;
+  padding: 20px 20px;
+  background-color: #FFF; /* Button background color */
+  color: #222; /* Text color */
+  border: 2px solid #FFF; /* Button border */
+  border-radius: 5px; /* Rounded corners */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+/* Hover effect */
+input[type="file"]:hover {
+  /* background-color: #eee; */
+  transform: scale(1.05);
+}
+
+#buttonsContainerReference{
+  top:400px;
+  left:0px;
+  position:absolute;
+  height:5000px;
+  width:100%;
+}
+#buttonsContainer {
+  position: sticky;
+  top: 0px; /* Sticks 100px from the top */
+  left:0px;
+  width:100%;
+  z-index: 10000;
+  background-color: #FAFCFD;
+  height:100px;
+  min-width:1000px;
+  
+  /* padding: 10px; */
+  /* box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); */
+}
+
+#showValueOnHover {
+  opacity:0;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  margin: 50px; /* Optional: Adds some spacing from the screen edges */
+  padding: 5px 10px; /* Optional: Adds some internal spacing for better appearance */
+  background-color: rgba(0, 0, 0, 0.7); /* Optional: Background color with transparency */
+  color: white; /* Optional: Text color */
+  border-radius: 5px; /* Optional: Rounded corners */
+  font-size:16px; /* Optional: Adjust text size */
+  z-index:30000;
+  max-width: calc(100% - 20px); /* Prevents overflow if the text is too wide */
+  word-wrap: break-word; /* Ensures text doesn't overflow the box */
+}
+
+#downloadUploadFile{
+  position:absolute;
+  top:20px;
+  padding:10px;
+  left:80px;
+  /* width:400px; */
+  height:20px;
+  background-color: white;
+  position:absolute;
+  display: flex;
+  flex-wrap: wrap;
+  border-radius: 5px;
+  gap: 5px; /* Adds space between the buttons */
+  pointer-events: all;
+}
+
+#toelichting{
+  position:absolute;
+  top:277px;
+  left:80px;
+  height:300px;
+  width:700px;
+  /* background-color:red; */
+}
+
+
+
+.yearButton{
+  background-color: #E8F0F4;
+  /* border: none; */
+  border-width:0.5px;
+  border-color: #eee;
+  font-size: 14px;
+  font-weight:500;
+  border-radius: 5px;
+  margin: 0px;
+  border: '1px solid #eee';
+  color:#333;
+  padding:10px !important;
+}
+
+.yearButton.highlighted {
+  background-color: #444; /* Blue background for highlight */
+  color: white; /* White text for better contrast */
+  border-color:none; 
+}
+
+table {
+  font-size:11px;
+  border-collapse: collapse;
+  width: 50%; /* Adjust width as needed */
+  text-align: left;
+  margin: 20px auto; /* Center the table horizontally */
+  border: 0px solid #eee;
+}
+
+th, td {
+  padding: 0px 5px; /* Adjust padding for cells */
+  margin: 0; /* Ensure no extra margin */
+}
+
+thead th {
+  background-color: #f2f2f2; /* Optional header background color */
+  font-weight: bold;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #f9f9f9; /* Optional alternating row color */
+}
+/* 
+tbody tr:hover {
+  background-color: #e0e0e0; /* Optional hover effect for rows */
+} */
+
+td {
+  line-height: 1.6; /* Adjust line height (distance between lines of text) */
+}
