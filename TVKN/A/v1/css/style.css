@@ -497,21 +497,25 @@ table {
   width: 50%; /* Adjust width as needed */
   text-align: left;
   margin: 20px auto; /* Center the table horizontally */
-  border: 1px solid #FFF;
+  border: 2px solid none;
 }
 
 th, td {
   padding: 0px 5px; /* Adjust padding for cells */
   margin: 0; /* Ensure no extra margin */
+  border:2px solid #E8F0F4;
+  background-color:  #FFF;
 }
 
 thead th {
-  background-color: #f2f2f2; /* Optional header background color */
+  background-color: #FFF; /* Optional header background color */
   font-weight: bold;
+  border: 2px solid #E8F0F4;
 }
 
 tbody tr:nth-child(even) {
-  background-color: #f9f9f9; /* Optional alternating row color */
+  background-color: #FFF; /* Optional alternating row color */
+  border: 2px solid #E8F0F4;
 }
 /* 
 tbody tr:hover {
