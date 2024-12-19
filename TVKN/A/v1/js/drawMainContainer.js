@@ -193,7 +193,7 @@ setTimeout(() => {
     `
         <span style="font-size:20px;">Sankey diagram | energiestromen</span>
         <br><br>
-        De opties uit OPERA zijn onderverdeeld naar vier categorieën energie- en grondstofconversie en zes sectorale categorieën finaal verbruik. Klik op de zwarte markers voor een specificatie van opties op elk knooppunt. Klik op de energiestromen voor een overview over alle scenario's en steekjaren.
+        De opties uit OPERA zijn onderverdeeld naar vier categorieën energie- en grondstofconversie en zeven sectorale categorieën finaal verbruik. Klik op de zwarte markers voor een specificatie van opties op elk knooppunt. Klik op de energiestromen voor een overview over alle scenario's en steekjaren.
     `
   titleDiv.style.width = '100%' // Set the width of the div
   titleDiv.style.maxWidth = '900px'
