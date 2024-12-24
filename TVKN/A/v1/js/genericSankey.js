@@ -2,26 +2,13 @@ let sankeyLayout
 let sankeyDiagram
 let activeScenario = 0
 let scaleInit = 1
-let sankeyCanvas
-let headerCanvas
-let footerCanvas
-let autoPlayStatus = false
-let autoPlayTimer
-let zoomHasInitialized = false
 let nodesGlobal
-let helicopterMarkers = []
 let globalScaleInit
 let globalCO2flowScale
 let currentK = 1
-let helicopterLabelsPreviousValues = {}
-let initScenarioSwitchFlag = 2
-
-let sankeyInitFlag = false
-
 let globalActiveScenario = {}
 let globalActiveYear = {}
 let globalActiveWACC = {}
-
 let links = {}
 let nodes = {}
 let legend = {}
@@ -53,6 +40,12 @@ function initSankey (config) {
         console.log('Remarks:', remarks)
 
         nodesGlobal = nodes
+
+        console.log(nodes)
+        // TEMPORARY SOLUTION, SHIFT ALL NODES to the left
+        for (i = 0;i < nodes.length;i++) {
+          nodes[i].x = nodes[i].x - 100
+        }
 
         settings = transformData(settings)
 
@@ -231,6 +224,11 @@ function initSankey (config) {
           // console.log(settings)
 
           settings = transformData(settings)
+
+          // TEMPORARY SOLUTION, SHIFT ALL NODES to the left
+          for (i = 0;i < nodes.length;i++) {
+            nodes[i].x = nodes[i].x - 100
+          }
 
           // console.log(settings)
 
@@ -417,19 +415,12 @@ function initSankey (config) {
     }
   }
 
-  function process_object (config) {
-    sankeyData = config.sankeyData
-    sankeyLayout = d3.sankey().extent([[config.margins.horizontal, config.margins.vertical], [width - config.margins.horizontal, height - config.margins.vertical]])
-    sankeyDiagram = d3.sankeyDiagram().nodeTitle(function (d) { return d.title }).linkColor(function (d) { return d.color }) // return d.title || d.id
-
-    drawSankey(sankeyData)
-  }
-  fileLoadButton()
+  // fileLoadButton()
   function fileLoadButton () {
     let config = {
       mode: 'xlsx',
       // xlsxURL: sankeyXLSXurl,
-      targetDIV: 'sankeyContainer_main',
+      targetDIV: 'scaleableSVGContainer',
       margins: {vertical: 0,horizontal: 200},
       sankeyData: null,
       legend: null,
@@ -734,9 +725,6 @@ function initSankey (config) {
         .nodeTitle((d) => d.title)
         .linkColor((d) => d.color)
 
-      // console.log(newData)
-        // drawSankey(newData)
-
       drawSankey(newData)
     }
 
@@ -754,84 +742,21 @@ function initSankey (config) {
   function drawSankey (sankeyDataInput) {
     console.log(sankeyDataInput)
     sankeyData = sankeyDataInput
-    d3.select('#sankeySVG').remove()
-    // sankeyData = {}
-    // koekje
+    d3.select('#sankeySVGPARENT').remove()
+
     assetslog = {}
 
     let scrollExtentWidth = config.settings[0].scrollExtentWidth
     let scrollExtentHeight = config.settings[0].scrollExtentHeight
 
-    let viewportWidth = document.getElementById(config.targetDIV).offsetWidth
-    let viewportHeight = document.getElementById(config.targetDIV).offsetHeight
+    d3.select('#' + config.targetDIV).append('svg').style('position', 'relative').attr('id', 'sankeySVGPARENT').attr('width', scrollExtentWidth + 'px').attr('height', scrollExtentHeight + 'px').style('pointer-events', 'none').append('g') // .attr('id', 'sankeySVG').style('pointer-events', 'auto') // scrollExtentWidth
 
-    // create DIV structure
-    // header
-    d3.select('#' + config.targetDIV).append('div').attr('id', config.targetDIV + '_header').attr('class', 'header').style('position', 'absolute').style('top', '0px').style('left', '0px').style('right', '0px').style('overflow', 'hidden').style('height', '40px').style('width', '100%').append('svg').attr('id', config.targetDIV + '_headerSVG').attr('width', viewportWidth).attr('height', 40)
-    // content wrapper
-    d3.select('#' + config.targetDIV).append('div').attr('id', config.targetDIV + '_content-wrapper').style('position', 'relative').style('top', '0px').style('left', '0px').style('overflow', 'hidden').style('width', '100%').style('height', 'calc(100% - 0px)')
-    // content
-    d3.select('#' + config.targetDIV + '_content-wrapper').append('div').attr('id', 'content').style('width', viewportWidth + 'px').style('min-height', 'calc(100% - 0px)').style('height', viewportHeight + 'px').style('background-color', '')
-    // footer
-    d3.select('#' + config.targetDIV).append('div').attr('id', config.targetDIV + '_footer').attr('class', 'footer').style('height', '40px').style('width', '100%').style('position', 'absolute').style('bottom', '0px').style('left', '0px').style('overflow', 'hidden').append('svg').attr('id', config.targetDIV + '_footerSVG').attr('width', viewportWidth).attr('height', 40) // .style('background-color', '#666')
-    // // button
-    // d3.select('#' + config.targetDIV).append('div').attr('id', config.targetDIV + '_buttons').attr('class', 'buttons').style('height', '165px').style('width', '100%').style('position', 'absolute').style('top', '40px').style('left', '0px').style('overflow', 'hidden').append('svg').attr('id', config.targetDIV + '_buttonsSVG').attr('width', viewportWidth).attr('height', 165).style('background-color', 'none') // added 55
-    // append SVGS
-    d3.select('#content').append('svg').style('position', 'absolute').style('top', '0px').style('left', '0px').attr('id', 'sankeySVGbackdrop').attr('width', viewportWidth + 'px').attr('height', viewportHeight + 'px').style('pointer-events', 'none')
-    d3.select('#content').append('svg').style('position', 'absolute').attr('id', 'sankeySVGPARENT').attr('width', scrollExtentWidth + 'px').attr('height', scrollExtentHeight + 'px').style('pointer-events', 'none').append('g').attr('id', 'sankeySVG').style('pointer-events', 'auto') // scrollExtentWidth
-
-    // append scenarioSummary container
-    d3.select('#' + config.targetDIV).append('div').attr('class', 'scenarioSummary').style('position', 'absolute').style('left', '10px').style('top', '225px').style('width', '400px').style('background-color', 'rgba(255,255,255,0.8)').attr('id', 'scenarioSummaryContainer').style('pointer-events', 'none').style('visibility', 'hidden')
-
-    // append huidgGetoond
-    d3.select('#' + config.targetDIV).append('div').style('position', 'absolute').style('left', '10px').style('bottom', '50px').style('height', '21px').style('background-color', '#999').attr('id', 'huidigGetoond').style('pointer-events', 'none')
-
-    // d3.select('#sankeySVG').style('transform-origin', '0px 0px')
     backdropCanvas = d3.select('#sankeySVGbackdrop')
-    sankeyCanvas = d3.select('#sankeySVG')
-    footerCanvas = d3.select('#' + config.targetDIV + '_footerSVG').append('g')
+    sankeyCanvas = d3.select('#sankeySVGPARENT')
     buttonsCanvas = d3.select('#' + config.targetDIV + '_buttonsSVG').append('g')
     parentCanvas = d3.select('#sankeySVGPARENT').append('g')
 
-    // sankeyCanvas.append('rect').attr('width', scrollExtentWidth).attr('height', scrollExtentHeight).attr('fill', '#ddd').style('opacity', 0.001)
-    backdropCanvas.append('rect').attr('id', 'backDropCanvasFill').attr('width', scrollExtentWidth).attr('height', scrollExtentHeight).attr('fill', '#E8F0F4') // .attr('fill', 'url(#dots)')
-
-    window.addEventListener('resize', function (event) {
-      d3.select('#backDropCanvasFill').attr('width', document.getElementById(config.targetDIV).offsetWidth).attr('height', document.getElementById(config.targetDIV).offsetWidth)
-      d3.select('#sankeySVGbackdrop').attr('width', document.getElementById(config.targetDIV).offsetWidth).attr('height', document.getElementById(config.targetDIV).offsetWidth)
-      d3.select('#' + config.targetDIV + '_buttonsSVG').attr('width', document.getElementById(config.targetDIV).offsetWidth)
-    })
-
-    function zoomed ({ transform }) {
-      const initX = parseFloat(config.settings[0].initTransformX)
-      const initY = parseFloat(config.settings[0].initTransformY)
-      const initK = parseFloat(config.settings[0].initTransformK)
-      var adjustedTransform = d3.zoomIdentity.translate(initX + transform.x, initY + transform.y).scale(initK * transform.k)
-      d3.select('#sankeySVG').attr('transform', adjustedTransform)
-
-      for (i = 0;i < helicopterMarkers.length;i++) {
-        d3.select('#' + helicopterMarkers[i].id + '_group').attr('transform', 'scale(' + 1 / transform.k + ')')
-      }
-      currentK = 1 / transform.k
-    }
-
-    function initZoom () {
-      // DISABLE/ENABLE ZOOM FUNCTIONALITY HERE
-      // d3.select('#sankeySVGPARENT').call(d3.zoom()
-      //   .extent([[0, 0], [document.getElementById('sankeySVGPARENT').getAttribute('width').slice(0, -2), document.getElementById('sankeySVGPARENT').getAttribute('height').slice(0, -2)]])
-      //   .scaleExtent([0.5, 8])
-      //   .on('zoom', zoomed) // TOOGLES ZOOM FUNCTIONALITY ON CANVAS ON AND OFF
-      // )
-      const initX = parseFloat(config.settings[0].initTransformX)
-      const initY = parseFloat(config.settings[0].initTransformY)
-      const initK = parseFloat(config.settings[0].initTransformK)
-      var initTransform = d3.zoomIdentity.translate(initX, initY).scale(initK)
-      // console.log(initTransform)
-
-      d3.select('#sankeySVG').attr('transform', initTransform)
-    }
-
-    initZoom()
+    backdropCanvas.append('rect').attr('id', 'backDropCanvasFill').attr('width', scrollExtentWidth).attr('height', scrollExtentHeight).attr('fill', '#ddd').attr('fill', 'url(#dots)')
 
     d3.select('.sankey').select('.links').selectAll('.link').attr('id', function (d) {console.log(d)})
 
@@ -840,19 +765,6 @@ function initSankey (config) {
     let cumulativeXpos = 45
 
     scaleInit = config.settings[0].scaleInit
-
-    // setTimeout(() => {
-    //   // tick()
-    //   setScenario(14)
-    // }, 3000)
-
-    // setInterval(() => {
-    //   setScenario(1)
-    // }, 2500)
-
-    // setInterval(() => {
-    //   setScenario(0)
-    // }, 5000)
 
     let scenarioIdLookup = {
       // WACC_standaard: {
@@ -1131,7 +1043,10 @@ function initSankey (config) {
       activeScenario = scenarioIdLookup[globalActiveScenario.id][globalActiveYear.id]
       currentScenarioID = activeScenario // neaten
       // console.log(config)
-      drawRemarks()
+      // 
+      setTimeout(() => {
+        drawRemarks()
+      }, 500)
       if (type != 'soft') {tick()}
     }
     window.setScenario = setScenario // make setScenario available globally
@@ -1193,15 +1108,24 @@ function initSankey (config) {
 
       scenarios.forEach((scenario, index) => {
         let button = document.createElement('button')
+        button.className = 'button-black button-outline'
         button.textContent = scenario.title
 
+        button.style.textTransform = 'lowercase'
         // Apply CSS to style the button
         button.style.display = 'inline-block'
-        // button.style.margin = '5px'
-        button.style.padding = '5px 10px'
-        button.style.cursor = 'pointer'
-        button.style.whiteSpace = 'nowrap'
-        // button.style.fontSize = '13px'
+        button.style.margin = '3px'
+        button.style.fontWeight = 300
+        button.style.border = '0px solid black'
+        button.style.color = 'black'
+        button.style.backgroundColor = 'white'
+        // button.style.transform = 'scale(0.4)'
+        button.style.paddingLeft = '9px'
+        button.style.paddingRight = '9px'
+        // button.style.cursor = 'pointer'
+        button.style.lineHeight = '20px'
+        button.style.height = '20px'
+        button.style.fontSize = '10px'
 
         // Highlight the first button by default
         if (index === 0) {
@@ -1247,10 +1171,24 @@ function initSankey (config) {
         button.textContent = year.title
 
         // Apply CSS to style the button
+
+        button.className = 'button-black button-outline'
+        // button.textContent = scenario.title
+
+        button.style.textTransform = 'lowercase'
         button.style.display = 'inline-block'
-        button.style.padding = '5px 10px'
-        button.style.cursor = 'pointer'
-        button.style.whiteSpace = 'nowrap'
+        button.style.margin = '3px'
+        button.style.fontWeight = 300
+        button.style.border = '0px solid black'
+        button.style.color = 'black'
+        button.style.backgroundColor = 'white'
+        button.style.paddingLeft = '15px'
+        button.style.paddingRight = '15px'
+        button.style.paddingTop = '15px'
+        button.style.paddingBottom = '15px'
+        button.style.lineHeight = '6px'
+        button.style.fontSize = '12px'
+        button.style.textAlign = 'center'
         // button.style.fontSize = '13px'
 
         // Highlight the first button by default
@@ -1267,7 +1205,7 @@ function initSankey (config) {
           // Add 'highlighted' class to the clicked button
           button.classList.add('highlighted')
 
-          console.log('Selected scenario:', year)
+          // console.log('Selected scenario:', year)
           globalActiveYear = year
           setScenario()
         }
@@ -1275,76 +1213,29 @@ function initSankey (config) {
         container.appendChild(button)
       })
     }
-
-    // drawWACCButtons()
-    // function drawWACCButtons () {
-    //   let waccs = [
-    //     {id: 'WACC_standaard', title: 'Standaard (2.25%)'},
-    //     {id: 'WACC_hoger', title: 'Verhoogd (4% - 8%)'}
-    //   ]
-
-    //   let container = document.getElementById('waccButtons')
-
-    //   // Clear existing content in case the function is called multiple times
-    //   container.innerHTML = ''
-
-    //   waccs.forEach((wacc, index) => {
-    //     let button = document.createElement('button')
-    //     button.textContent = wacc.title
-
-    //     // Apply CSS to style the button
-    //     button.style.display = 'inline-block'
-    //     button.style.padding = '5px 10px'
-    //     button.style.cursor = 'pointer'
-    //     button.style.whiteSpace = 'nowrap'
-    //     // button.style.fontSize = '13px'
-
-    //     // Highlight the first button by default
-    //     if (index === 0) {
-    //       button.classList.add('highlighted')
-    //     }
-
-    //     button.onclick = function () {
-    //       // Remove 'highlighted' class from all buttons
-    //       let buttons = container.getElementsByTagName('button')
-    //       for (let i = 0; i < buttons.length; i++) {
-    //         buttons[i].classList.remove('highlighted')
-    //       }
-    //       // Add 'highlighted' class to the clicked button
-    //       button.classList.add('highlighted')
-
-    //       console.log('Selected scenario:', wacc)
-    //       globalActiveWACC = wacc
-    //       setScenario()
-    //     }
-
-    //     container.appendChild(button)
-    //   })
-    // }
-
     // init
-    setScenario(lookupScenarioID())
+    setScenario()
     updateActiveScenarioIndicator(activeScenario)
 
     // drawSankeyLegend(legend)
-    function drawSankeyLegend () {
-      let shiftY = config.settings[0].legendPositionTop
-      let shiftX = config.settings[0].legendPositionLeft
-      let box = 15
-      let spacing = 35
+    // function drawSankeyLegend () {
+    //   let shiftY = config.settings[0].legendPositionTop
+    //   let shiftX = config.settings[0].legendPositionLeft
+    //   let box = 15
+    //   let spacing = 35
 
-      let legendEntries = []
-      for (i = 0;i < legend.length;i++) {
-        legendEntries.push({label: legend[i].id, color: legend[i].color, width: getTextWidth(legend[i].id, '13px', config.settings[0].font) + box + spacing})
-      }
+    //   let legendEntries = []
+    //   for (i = 0;i < legend.length;i++) {
+    //     legendEntries.push({label: legend[i].id, color: legend[i].color, width: getTextWidth(legend[i].id, '13px', config.settings[0].font) + box + spacing})
+    //   }
 
-      let cumulativeWidth = 0
-      for (i = 0; i < legendEntries.length; i++) {
-        footerCanvas.append('rect').attr('x', cumulativeWidth + shiftX).attr('y', shiftY).attr('width', box).attr('height', box).attr('fill', legendEntries[i].color)
-        footerCanvas.append('text').style('font-family', config.settings[0].fontFamily).attr('x', cumulativeWidth + shiftX + 25).attr('y', shiftY + box / 1.4).style('font-size', 12 + 'px').text(legendEntries[i].label).attr('fill', 'white')
-        cumulativeWidth += legendEntries[i].width
-      }
-    }
+    //   let cumulativeWidth = 0
+    //   for (i = 0; i < legendEntries.length; i++) {
+    //     footerCanvas.append('rect').attr('x', cumulativeWidth + shiftX).attr('y', shiftY).attr('width', box).attr('height', box).attr('fill', legendEntries[i].color)
+    //     footerCanvas.append('text').style('font-family', config.settings[0].fontFamily).attr('x', cumulativeWidth + shiftX + 25).attr('y', shiftY + box / 1.4).style('font-size', 12 + 'px').text(legendEntries[i].label).attr('fill', 'white')
+    //     cumulativeWidth += legendEntries[i].width
+    //   }
+    // }
 
     // drawMenuBar() // DRAWMENUBAR IS DISABLED
     // disable 2030, 2040 & 2050
@@ -1353,272 +1244,13 @@ function initSankey (config) {
     d3.select('#button_rect_zichtjaar_2050').attr('fill', '#ddd').on('click', function () {})
 
     setTimeout(() => {
-      drawHeader()
+      // drawHeader()
     }, 200)
-
-    function drawHeader () {
-      const svg = d3.select('#mainContainerHeader')
-        .append('svg')
-        .attr('width', '100%')
-        .attr('height', '100%')
-        .attr('id', 'sankeyHeaderSVG')
-        .style('background-color', '#E8F0F4')
-
-      const canvasHeader = svg.append('g')
-
-      // Select the specific div by its ID
-      const containerDiv = document.getElementById('main')
-      const eDragersContainerDiv = document.getElementById('energieDragersContainer')
-      const carbonDiv = document.getElementById('tempCO2Overview')
-
-      const titleDiv = document.createElement('div')
-      const introDiv = document.createElement('div')
-      const versionDiv = document.createElement('div')
-      const exDiv = document.createElement('div')
-      const co2Div = document.createElement('div')
-      const co2Div_2 = document.createElement('div')
-      const blackDiv = document.createElement('div')
-      const redDiv = document.createElement('div')
-
-      // Add text content to the new div
-      titleDiv.innerText = config.settings[0].title
-      titleDiv.style.width = '900px' // Set the width of the div
-      titleDiv.style.position = 'absolute' // Position it absolutely
-      titleDiv.style.top = '80px' // Distance from the top of the container
-      titleDiv.style.left = '70px' // Distance from the left of the container
-      titleDiv.style.padding = '10px' // Add padding inside the div
-      titleDiv.style.fontSize = '23px'
-      titleDiv.style.fill = '#222'
-      titleDiv.style.fontWeight = '400'
-      containerDiv.appendChild(titleDiv)
-
-      // Add text content to the new div
-      versionDiv.innerText = config.settings[0].dataVersion
-      versionDiv.style.width = '150px' // Set the width of the div
-      versionDiv.style.position = 'absolute' // Position it absolutely
-      versionDiv.style.top = '80px' // Distance from the top of the container
-      versionDiv.style.right = '100px' // Distance from the left of the container
-      versionDiv.style.padding = '10px' // Add padding inside the div
-      versionDiv.style.fontSize = '14px'
-      versionDiv.style.fill = '#222'
-      versionDiv.style.fontWeight = '400'
-      containerDiv.appendChild(versionDiv)
-
-      // Add text content to the new div
-      // exDiv.innerText = 'PJ'
-      // exDiv.style.width = '900px' // Set the width of the div
-      // exDiv.style.position = 'absolute' // Position it absolutely
-      // exDiv.style.top = '50px' // Distance from the top of the container
-      // exDiv.style.left = '70px' // Distance from the left of the container
-      // exDiv.style.padding = '10px' // Add padding inside the div
-      // exDiv.style.fontSize = '14px'
-      // exDiv.style.fill = '#222'
-      // exDiv.style.fontWeight = '300'
-      // containerDiv.appendChild(exDiv)
-
-      introDiv.innerHTML = 'In de <a href="https://www.pbl.nl/publicaties/trajectverkenning-klimaatneutraal-2050" target="_blank" > Trajectverkenning Klimaatneutraal</a> (TVKN) heeft het PBL met behulp van het <a href="https://www.pbl.nl/en/publications/opera-a-new-high-resolution-energy-system-model-for-sector-integration-research" traget"_blank">OPERA</a> model meer dan 30 scenario’s doorgerekend die de weg naar een klimaatneutraal Nederland in 2050 verkennen. Met deze scenarioviewer verken je de uitkomsten van de TVKN in een aantal interactieve datavisualisaties. Dit is een demoversie met een uitwerking van het eerste onderdeel; een integrale weergave van alle gemodelleerde energiestromen in de vorm van een Sankey-diagram. Additionele visualisaties met informatie over uitgangspunten, CO₂-stromen, activiteitenniveau\'s, opgestelde vermogens en kosten volgen in toekomstige updates.'
-      introDiv.style.width = '750px' // Set the width of the div
-      introDiv.style.position = 'absolute' // Position it absolutely
-      introDiv.style.top = '170px' // Distance from the top of the container
-      introDiv.style.left = '70px' // Distance from the left of the container
-      introDiv.style.padding = '10px' // Add padding inside the div
-      introDiv.style.fontSize = '14px'
-      introDiv.style.fill = '#222'
-      introDiv.style.fontWeight = '300'
-      introDiv.style.lineHeight = '28px'
-      introDiv.style.pointerEvents = 'all'
-      containerDiv.appendChild(introDiv)
-
-      // blackDiv.innerHTML = 'Bij een aantal knooppunten in het diagram zijn labels geplaatst. Klik op een label om te zien welke <a href="https://www.pbl.nl/en/publications/opera-a-new-high-resolution-energy-system-model-for-sector-integration-research" traget"_blank">OPERA</a>-opties er op een knooppunt zijn ondergebracht.'
-      // blackDiv.style.width = '550px' // Set the width of the div
-      // blackDiv.style.position = 'absolute' // Position it absolutely
-      // blackDiv.style.top = '790px' // Distance from the top of the container
-      // blackDiv.style.left = '200px' // Distance from the left of the container
-      // blackDiv.style.padding = '10px' // Add padding inside the div
-      // blackDiv.style.fontSize = '14px'
-      // blackDiv.style.fill = '#222'
-      // blackDiv.style.fontWeight = '300'
-      // blackDiv.style.lineHeight = '28px'
-      // blackDiv.style.zIndex = '5000'
-      // containerDiv.appendChild(blackDiv)
-
-      redDiv.innerHTML =
-        `
-            <table border="1" style="border-collapse: collapse; width: 100%; text-align: left;">
-        <thead>
-            <tr>
-                <th>Hoofdcategorie</th>
-                <th>Energiedragers</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>Ammoniak</td>
-                <td>Ammonia, Ammonia export, Ammonia import</td>
-            </tr>
-            <tr>
-                <td>Afval</td>
-                <td>Afval (niet-biogeen)</td>
-            </tr>
-            <tr>
-                <td>Biomassa(producten)</td>
-                <td>Bio-DME, Bio-ethanol, Bio-LNG for shipping, Bio-LPG, Bio-Methanol for shipping, Bio-restgassen, Biobenzine, Biodiesel, Biogas, Biogas voor schaduwprijs, BioHFO, Biokerosine, Biomass Pyrolysis Oil, Biomassa (afval biogeen), Biomassa (AWZ, RWZ en STRT), Biomassa (GFT & VGI), Biomassa (hout binnenland), Biomassa (hout buitenland), Biomassa (hout buitenland), expensive part, Biomassa (hout), Biomassa (suikers), Biomassa (UCO buitenland), Biomassa (zetmeel), Biomethanol, Bionaphta, E-inhoud mest, Overige bio-olieproducten</td>
-            </tr>
-            <tr>
-                <td>Elektriciteit</td>
-                <td>Electricity</td>
-            </tr>
-            <tr>
-                <td>Ethyleen</td>
-                <td>Ethylene</td>
-            </tr>
-            <tr>
-                <td>Geothermie</td>
-                <td>Aardwarmte</td>
-            </tr>
-            <tr>
-                <td>Kolen(producten)</td>
-                <td>Cokes, Cokesovengas, Hoogovengas, Kolen</td>
-            </tr>
-            <tr>
-                <td>Methaan</td>
-                <td>Aardgas, Aardgas feedstock, Gas winning</td>
-            </tr>
-            <tr>
-                <td>Methanol</td>
-                <td>Methanol, Methanol for shipping, Synthetic methanol, Synthetic methanol for shipping</td>
-            </tr>
-            <tr>
-                <td>Olie(producten)</td>
-                <td>Benzine, Diesel, HFO, Kerosine, LNG for shipping, LPG, Naphta, Olie, Oliegrondstoffen, Overige olieproducten, Restgassen</td>
-            </tr>
-            <tr>
-                <td>Omgevingswarmte</td>
-                <td>Omgevingswarmte</td>
-            </tr>
-            <tr>
-                <td>Plastic afval</td>
-                <td>Plastic waste</td>
-            </tr>
-            <tr>
-                <td>Restwarmte</td>
-                <td>Industrial Waste Heat</td>
-            </tr>
-            <tr>
-                <td>Synthetisch</td>
-                <td>Synthetic benzine, Synthetic diesel, Synthetic HFO, Synthetic kerosine, Synthetic LNG for shipping, Synthetic LPG, Synthetic naphtha, Synthetic waste gasses, Synthetische brandstoffen uit FT, Other synthetic oil products</td>
-            </tr>
-            <tr>
-                <td>Uranium</td>
-                <td>Uranium</td>
-            </tr>
-            <tr>
-                <td>Warmte</td>
-                <td>Heat100to200, Heat200to400, HeatDir200to400, HeatHT400, Warmte</td>
-            </tr>
-            <tr>
-                <td>Waterstof</td>
-                <td>Hydrogen import, Waterstof</td>
-            </tr>
-            <tr>
-                <td>Wind</td>
-                <td>Wind</td>
-            </tr>
-            <tr>
-                <td>Zon</td>
-                <td>Zon</td>
-            </tr>
-            <tr>
-                <td>Zon thermisch</td>
-                <td>Zon thermisch</td>
-            </tr>
-        </tbody>
-    </table>
-    <br><br>
-     <span style="font-size:20px;">Voetnoten bij knooppunten</span>
-
-    `
-      redDiv.style.width = '100%' // Set the width of the div
-      redDiv.style.minWidth = '700px' // Set the width of the div
-      redDiv.style.top = '50px'
-      // redDiv.style.maxWidth = '700px'
-      redDiv.style.position = 'absolute' // Position it absolutely
-      // redDiv.style.top = '2100px' // Distance from the top of the container
-      // redDiv.style.left = '230px' // Distance from the left of the container
-      redDiv.style.padding = '10px' // Add padding inside the div
-      redDiv.style.fontSize = '14px'
-      redDiv.style.fill = '#222'
-      redDiv.style.fontWeight = '300'
-      redDiv.style.lineHeight = '20px'
-      eDragersContainerDiv.appendChild(redDiv)
-    }
-    initializeUI()
-  }
-  let indicatorTimeOut
-  function drawHelicopterMarkers (attributes) {
-    let showDuration = 4000
-    index = nodesGlobal.findIndex(item => item.id === attributes.id)
-    attributes.value = Math.round(d3.select('#nodeindex_' + index).attr('height') / globalScaleInit)
-    attributes.refX = nodesGlobal[index].x - 300
-    attributes.refY = nodesGlobal[index].y - 1000
-    helicopterMarkers.push(attributes)
-
-    let icon = 'm480-123.807-252.769-252.77 20.384-21.538L465.346-180.5v-663.385h30.193V-180.5l216.846-218.115 21.269 22.038L480-123.807Z'
-
-    sankeyCanvas.append('g').attr('id', attributes.id + '_group').attr('class', 'helicopterLabel')
-    let group = d3.select('#' + attributes.id + '_group')
-
-    let posx = 250 + attributes.refX
-    let posy = 1100 + attributes.refY
-
-    group.style('transform-origin', posx + 'px ' + posy + 'px')
-
-    d3.select('#' + attributes.id + '_group').attr('transform', 'scale(' + currentK + ')')
-
-    posx = 178 + attributes.refX
-    posy = 1100 + attributes.refY
-
-    let titleLabelWidth = getTextWidth(attributes.title, '60px', config.settings[0].font) * 0.96 + 60
-    let valueLabelWidth = getTextWidth(attributes.value + ' PJ', '60px', config.settings[0].font) * 0.96 + 60
-    group.append('path').attr('d', icon).attr('transform', 'translate(' + posx + ',' + posy + ')scale(0.15)')
-
-    group.append('rect').attr('x', - titleLabelWidth + 260 + 10 + attributes.refX).attr('y', 850 + attributes.refY).attr('width', titleLabelWidth).attr('height', 95).attr('fill', 'white').style('opacity', 1)
-    group.append('text').attr('x', 240 + attributes.refX).attr('y', 920 + attributes.refY).attr('fill', '#000').style('font-size', '60px').style('text-anchor', 'end').style('font-weight', '400').text(attributes.title)
-
-    group.append('rect').attr('x', 270 + attributes.refX).attr('y', 850 + attributes.refY).attr('width', valueLabelWidth).attr('height', 95).attr('fill', '#333').style('opacity', 0.6)
-    group.append('text').attr('x', 290 + attributes.refX).attr('y', 920 + attributes.refY).attr('fill', '#FFF').style('font-size', '60px').style('text-anchor', 'start').text(attributes.value + ' PJ')
-
-    if (initScenarioSwitchFlag == 0) {
-      clearTimeout(indicatorTimeOut)
-      console.log(helicopterLabelsPreviousValues[attributes.id])
-
-      posx = attributes.refX - titleLabelWidth - 110
-      posy = 970 + attributes.refY
-      // group.append('rect').attr('x', attributes.refX - titleLabelWidth + 50 - 95 - 40).attr('y', 850 + attributes.refY).attr('width', 95).attr('height', 95).attr('fill', '#333').style('opacity', 0.6).style('visibility', 'visible').attr('id', 'changeIndicator').transition().duration(showDuration).style('opacity', 0)
-      let change = 0
-      if (helicopterLabelsPreviousValues[attributes.id] < attributes.value) {
-        // group.append('path').attr('d', up).attr('transform', 'translate(' + posx + ',' + posy + ')scale(0.15)').attr('fill', '#FFF').style('visibility', 'visible').attr('id', 'changeIndicator').transition().duration(showDuration).style('opacity', 0)
-        let diff = attributes.value - helicopterLabelsPreviousValues[attributes.id]
-        change = '+ ' + diff + ' PJ'
-      }
-      if (helicopterLabelsPreviousValues[attributes.id] > attributes.value) {
-        // group.append('path').attr('d', down).attr('transform', 'translate(' + posx + ',' + posy + ')scale(0.15)').attr('fill', '#FFF').style('visibility', 'visible').attr('id', 'changeIndicator').transition().duration(showDuration).style('opacity', 0)
-        // console.log()
-        let diff = helicopterLabelsPreviousValues[attributes.id] - attributes.value
-        change = '- ' + diff + ' PJ'
-      }
-      // group.append('rect').attr('x', attributes.refX).attr('y', 850 + attributes.refY + 90).attr('width', 250 * 0.8).attr('height', 95 * 0.8).attr('fill', 'black').style('opacity', 0.6).style('visibility', 'visible').attr('id', 'changeIndicator').transition().duration(showDuration).style('opacity', 0)
-      group.append('text').attr('x', attributes.refX + 200).attr('y', 920 + attributes.refY + 90 + 40).attr('fill', '#000').style('font-size', '70px').style('text-anchor', 'end').text(change).style('visibility', 'visible').attr('id', 'changeIndicator').transition().duration(showDuration).style('opacity', 0)
-      indicatorTimeOut = setTimeout(() => {
-        d3.selectAll('#changeIndicator').remove()
-      }, showDuration)
-    }
-    helicopterLabelsPreviousValues[attributes.id] = attributes.value
   }
 
   drawUnitSelector() // DRAW UNIT SELECTOR IS DISABLED
   function drawUnitSelector () {
-    d3.select('#buttonsContainer').append('div').attr('id', 'unitSelectorDiv').style('width', '200px').style('height', '35px').style('position', 'absolute').style('top', '120px').style('right', '0px').append('svg').attr('width', 200).attr('height', 35).attr('id', 'selectorButtonSVGSankey').attr('transform', 'scale(0.8)')
+    d3.select('#unitSelector').append('div').attr('id', 'unitSelectorDiv').style('width', '200px').style('height', '35px').style('position', 'absolute').style('top', '0px').style('right', '0px').append('svg').attr('width', 200).attr('height', 35).attr('id', 'selectorButtonSVGSankey').attr('transform', 'scale(0.8)')
     let sCanvas = d3.select('#selectorButtonSVGSankey').append('g')
     sCanvas.append('rect')
       .attr('x', 50)
@@ -1633,7 +1265,7 @@ function initSankey (config) {
       .on('click', function () {
         if (currentUnit == 'PJ') {currentUnit = 'TWh'} else currentUnit = 'PJ'
         d3.selectAll('#selectorStatus').transition().duration(200).attr('cx', function () {if (currentUnit == 'PJ') { return 63} else return 87})
-        setScenario(lookupScenarioID()) // FIETS
+        setScenario() // FIETS
 
       })
     sCanvas.append('circle')
@@ -1664,14 +1296,11 @@ function initSankey (config) {
       d3.select('#error').text('')
     } catch (e) { d3.select('#error').text(e); return; }
     sankeyLayout.nodePosition(function (node) {
-      // console.log(node.remark[currentScenarioID + 1])
-      // addToRemarksContainer(node.remark[currentScenarioID + 1], node.index + 1) // start counting at 1 instead of zero
-
       return [node.x, node.y]
     })
 
     let duration = 500
-    d3.select('#sankeySVG').datum(sankeyLayout.scale(scaleInit)(json)).transition().duration(duration).ease(d3.easeLinear).call(sankeyDiagram)
+    d3.select('#sankeySVGPARENT').datum(sankeyLayout.scale(scaleInit)(json)).transition().duration(duration).ease(d3.easeLinear).call(sankeyDiagram)
     d3.select('.sankey').attr('transform', 'translate(' + offsetX + ',' + offsetY + ')')
     d3.selectAll('.node-title').style('font-size', fontSize + 'tepx')
     d3.selectAll('.link').style('pointer-events', 'auto').style('cursor', 'pointer')
@@ -1684,29 +1313,6 @@ function initSankey (config) {
     d3.select('.sankey').select('.nodes').selectAll('.node').select('.node-click-target').attr('id', function (d, i) {return 'nodeindex_' + d.index}).on('click', function () { nodeVisualisatieSingular(config, sankeyData.nodes[this.id.slice(10)], sankeyData, config.scenarios, config.targetDIV) })
 
     d3.selectAll('.link').on('mouseover', function (event, d) {showValueOnHover(d3.select(this)); d3.select(this).style('opacity', 0.8)}).on('mouseout', function (d) {d3.select(this).style('opacity', 1)})
-
-    // function showValueOnHover (value) {
-    //   const formatMillions = (d) => {
-    //     const scaled = d / 1e6 // Scale the number to millions
-    //     return new Intl.NumberFormat('de-DE', { maximumFractionDigits: 0 }).format(scaled); // Format with '.' as thousands separator
-    //   }
-    //   console.log(value._groups[0][0].__data__.legend)
-    //   d3.select('#showValueOnHover').html(
-    //     function (d) {
-    //       if (value._groups[0][0].__data__.legend == 'co2flow') {
-    //         return value._groups[0][0].__data__.legend + ' | ' + parseInt(value._groups[0][0].__data__.value) * globalCO2flowScale + ' kton CO2'
-    //       } else {
-    //         if (currentUnit == 'TWh') {
-    //           return value._groups[0][0].__data__.legend + ' | ' + parseInt(value._groups[0][0].__data__.value / 3.6) + ' TWh'
-    //         } else { return value._groups[0][0].__data__.legend + ' | ' + parseInt(value._groups[0][0].__data__.value) + ' PJ'}
-    //       }
-    //     } // note
-
-    //   )
-    //     .style('background-color', '#777').interrupt().style('opacity', 1)
-    //   d3.select('#showValueOnHover').transition().duration(5000).style('opacity', 0)
-    //   if (value._groups[0][0].__data__.color == '#F8D377' || value._groups[0][0].__data__.color == '#62D3A4') {d3.select('#showValueOnHover').style('color', 'white')} else {d3.select('#showValueOnHover').style('color', 'white')}
-    // }
 
     function showValueOnHover (value) {
       const formatMillions = (d) => {
@@ -1725,23 +1331,10 @@ function initSankey (config) {
 
       )
         .style('background-color', value._groups[0][0].__data__.color).interrupt().style('opacity', 1)
-      d3.select('#showValueOnHover').transition().duration(5000).style('opacity', 0)
+      d3.select('#showValueOnHover').transition().duration(4000).style('opacity', 0)
       if (value._groups[0][0].__data__.color == '#F8D377' || value._groups[0][0].__data__.color == '#62D3A4') {d3.select('#showValueOnHover').style('color', 'black')} else {d3.select('#showValueOnHover').style('color', 'white')}
     }
-
-    setTimeout(() => {
-      helicopterMarkers = []
-      d3.selectAll('.helicopterLabel').remove()
-      // drawHelicopterMarkers({id: 'node1', title: 'HERNIEUWBAAR',change: 30, color: '#1DE9B6'})
-      if (initScenarioSwitchFlag > 0) { initScenarioSwitchFlag--}
-    }, duration)
   }
-
-  // INIT
-  setTimeout(() => {
-    // tick()
-    // setScenario(1)
-  }, 5000)
 
   function tick () {
     // sankeyData = {links: [],nodes: [],order: []}
@@ -1753,7 +1346,7 @@ function initSankey (config) {
     d3.selectAll('.node-remark-number').remove()
     d3.selectAll('.node-remarks').remove()
 
-    let sankeyCanvas = d3.select('#sankeySVG').append('g')
+    let sankeyCanvas = d3.select('#sankeySVGPARENT').append('g')
     for (i = 0; i < sankeyData.nodes.length; i++) {
       // sankeyData.links[i].value = Math.round(sankeyData.links[i][config.scenarios[activeScenario].id])
       // console.log(sankeyData.nodes[i])
@@ -1762,6 +1355,7 @@ function initSankey (config) {
       sankeyCanvas.append('path') // EDIT TIJS  - add
         .attr('d', 'M152-160q-23 0-35-20.5t1-40.5l328-525q12-19 34-19t34 19l328 525q13 20 1 40.5T808-160H152Z')
         .attr('class', 'node-remarks')
+        .style('pointer-events', 'all')
         .attr('height', 20)
         .attr('dy', sankeyData.nodes[i].y)
         .attr('dx', sankeyData.nodes[i].x)
@@ -1798,138 +1392,198 @@ function initSankey (config) {
         }
 
         if (containsInfoOrAanname(sankeyData.nodes[i].remark[currentScenarioID + 1])) {return 1} else {return 0}
-      }).on('click', function () {
-        const popup = document.createElement('div')
-        // const remarksList = d3.select('#remarksContainer')
-        popup.id = 'popup'
-
-        d3.select('#popupContainer').style('background-color', 'rgba(0,0,0,0.3)')
-        document.body.style.overflow = 'hidden'
-
-        console.log('currentScenarioID: ' + currentScenarioID)
-
-        // Parse remarksData for the current scenario
-        const remarksData = JSON.parse(d3.select(this).attr('remarksData'))[currentScenarioID + 1]
-        // addToRemarksContainer(remarksData)
-        const titleData = 'Node <strong>' + d3.select(this).attr('titleData') + '</strong>' // .replace(/"/g, '')
-        const valueData = d3.select(this).attr('valueData') + ' PJ'
-
-        // Create a bullet list container
-        const listContainer = document.createElement('ul')
-
-        // Create a helper function to create icons based on type
-        function createIcon (type) {
-          const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
-          icon.setAttribute('width', '60')
-          icon.setAttribute('height', '60')
-          icon.setAttribute('viewBox', '0 -960 960 960')
-          icon.setAttribute('transform', 'scale(1.5)')
-
-          const path = document.createElementNS('http://www.w3.org/2000/svg', 'path')
-
-          if (type === 'aanname') {
-            // Path for the warning icon (same as your original code)
-            path.setAttribute('d', 'M109-120q-11 0-20-5.5T75-140q-5-9-5.5-19.5T75-180l370-640q6-10 15.5-15t19.5-5q10 0 19.5 5t15.5 15l370 640q6 10 5.5 20.5T885-140q-5 9-14 14.5t-20 5.5H109Zm371-120q17 0 28.5-11.5T520-280q0-17-11.5-28.5T480-320q-17 0-28.5 11.5T440-280q0 17 11.5 28.5T480-240Zm0-120q17 0 28.5-11.5T520-400v-120q0-17-11.5-28.5T480-560q-17 0-28.5 11.5T440-520v120q0 17 11.5 28.5T480-360Z')
-            path.setAttribute('fill', '#c1121f')
-          } else if (type === 'info') {
-            // Path for a different info icon
-            path.setAttribute('d', 'M480-280q17 0 28.5-11.5T520-320v-160q0-17-11.5-28.5T480-520q-17 0-28.5 11.5T440-480v160q0 17 11.5 28.5T480-280Zm0-320q17 0 28.5-11.5T520-640q0-17-11.5-28.5T480-680q-17 0-28.5 11.5T440-640q0 17 11.5 28.5T480-600Zm0 520q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Z')
-            path.setAttribute('fill', '#495057')
-          } else if (type === 'bron') {
-            path.setAttribute('d', 'M480-280q17 0 28.5-11.5T520-320v-160q0-17-11.5-28.5T480-520q-17 0-28.5 11.5T440-480v160q0 17 11.5 28.5T480-280Zm0-320q17 0 28.5-11.5T520-640q0-17-11.5-28.5T480-680q-17 0-28.5 11.5T440-640q0 17 11.5 28.5T480-600Zm0 520q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Z')
-            path.setAttribute('fill', '#0096c7')
-          }
-
-          icon.appendChild(path)
-          return icon
-        }
-
-        addListItem('title', titleData)
-        addListItem('value', valueData)
-        // Create a helper function to add list items
-        function addListItem (type, htmlContent) {
-          const listItem = document.createElement('li')
-          listItem.style.display = 'flex' // To position the icon and text inline
-          listItem.style.alignItems = 'flex-start' // Align the icon to the top
-
-          const icon = createIcon(type)
-          icon.style.marginRight = '8px' // Add space between icon and text
-
-          const text = document.createElement('span')
-          text.innerHTML = htmlContent; // Use innerHTML to support HTML content like <strong>
-
-          listItem.appendChild(icon)
-          listItem.appendChild(text)
-
-          if (type == 'title') {
-            text.style.fontSize = '20px'
-          }
-          if (type == 'value') {
-            text.style.fontSize = '18px'
-          }
-
-          listContainer.appendChild(listItem)
-        }
-
-        // Parse the remarksData content as a string of HTML-like text
-        const parser = new DOMParser()
-        const parsedHTML = parser.parseFromString(remarksData, 'text/html')
-
-        // Process <info> and <aanname> elements
-        const infoItems = parsedHTML.querySelectorAll('info')
-        const bronItems = parsedHTML.querySelectorAll('bron')
-        const aannameItems = parsedHTML.querySelectorAll('aanname')
-
-        // Add each <info> element to the list with the appropriate icon and content
-        infoItems.forEach(info => {
-          addListItem('info', info.innerHTML); // innerHTML will preserve <strong> tags
-        })
-        // Add each <bron> element to the list with the appropriate icon and content
-        bronItems.forEach(aanname => {
-          addListItem('bron', aanname.innerHTML); // innerHTML will preserve <strong> tags
-        })
-
-        // Add each <aanname> element to the list with the appropriate icon and content
-        aannameItems.forEach(aanname => {
-          addListItem('aanname', aanname.innerHTML); // innerHTML will preserve <strong> tags
-        })
-
-        // Create close button
-        const closeButton = document.createElement('button')
-        closeButton.id = 'closeButton'
-        closeButton.textContent = 'Sluit'
-        closeButton.onclick = function () {
-          d3.select('#popupContainer').style('background-color', 'rgba(0,0,0,0)').style('pointer-events', 'none')
-          popup.remove() // Remove popup when button is clicked
-          document.body.style.overflow = 'auto'
-        }
-        // Append list and close button to popup
-        popup.appendChild(listContainer)
-        popup.appendChild(closeButton)
-
-        // remarksList.appendChild(listContainer)''
-
-        // Get main container and append popup
-        const popupContainer = document.getElementById('popupContainer')
-        popupContainer.appendChild(popup)
-
-        // d3.select('#popupContainer').style('background-color', 'rgba(0,0,0,0)').style('pointer-events', 'all')
-        // disable scrolling on body
-        // const observer = new MutationObserver(() => {
-        //   if (document.body.style.overflow !== 'hidden') {
-        //     document.body.style.setProperty('overflow', 'hidden', 'important')
-        //   }
-        // })
-
-        observer.observe(document.body, { attributes: true, attributeFilter: ['style'] })
-
-        // Clone the listContainer before appending it to remarksList
-        // const clonedListContainer = listContainer.cloneNode(true) // true for deep clone
-
-      // Get the remarksContainer and append the cloned listContainer
-      // const remarksList = document.getElementById('remarksContainer')
-      // remarksList.appendChild(clonedListContainer)
       })
+      // .on('click', function () {
+      //   // Create the popup container
+      //   const popup = document.createElement('div')
+      //   popup.id = 'popup'
+
+      //   // Dim the background
+      //   d3.select('#popupContainer').style('background-color', 'rgba(0,0,0,0.3)')
+      //   document.body.style.overflow = 'hidden'
+
+      //   console.log('currentScenarioID: ' + currentScenarioID)
+
+      //   // Parse remarksData for the current scenario
+      //   const remarksData = JSON.parse(d3.select(this).attr('remarksData'))[currentScenarioID + 1]
+
+      //   // Create a bullet list container
+      //   const listContainer = document.createElement('ul')
+
+      //   // Optional: Add some basic styling to the list
+      //   listContainer.style.listStyleType = 'none' // Remove default bullets
+      //   listContainer.style.padding = '0'
+      //   listContainer.style.margin = '0'
+      //   listContainer.style.rowGap = '10px' // Add spacing between items
+      //   listContainer.style.width = '100%' // Ensure it takes full width
+
+      //   // ─────────────────────────────────────────────────────────────────────────────
+      //   // 1. Helper function to create a separate “logo” (Column 1)
+      //   //    Replacing the green circle with the specified path.
+      //   // ─────────────────────────────────────────────────────────────────────────────
+      //   function createLogo () {
+      //     const logo = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+      //     logo.setAttribute('width', '60')
+      //     logo.setAttribute('height', '60')
+      //     // Adjust viewBox to fit the provided path
+      //     logo.setAttribute('viewBox', '0 -960 960 960') // Adjusted based on path coordinates
+
+      //     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path')
+      //     path.setAttribute('d', 'M152-160q-23 0-35-20.5t1-40.5l328-525q12-19 34-19t34 19l328 525q13 20 1 40.5T808-160H152Z')
+      //     path.setAttribute('fill', '#2ecc71') // Change color if desired
+
+      //     logo.appendChild(path)
+      //     return logo
+      //   }
+
+      //   // ─────────────────────────────────────────────────────────────────────────────
+      //   // 2. Helper function to create icons (Column 2) based on "type"
+      //   // ─────────────────────────────────────────────────────────────────────────────
+      //   function createIcon (type) {
+      //     const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+      //     icon.setAttribute('width', '60')
+      //     icon.setAttribute('height', '60')
+      //     icon.setAttribute('viewBox', '0 -960 960 960')
+
+      //     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path')
+
+      //     if (type === 'aanname') {
+      //       // Path for the warning icon
+      //       path.setAttribute('d', 'M109-120q-11 0-20-5.5T75-140q-5-9-5.5-19.5T75-180l370-640q6-10 15.5-15t19.5-5q10 0 19.5 5t15.5 15l370 640q6 10 5.5 20.5T885-140q-5 9-14 14.5t-20 5.5H109Zm371-120q17 0 28.5-11.5T520-280q0-17-11.5-28.5T480-320q-17 0-28.5 11.5T440-280q0 17 11.5 28.5T480-240Zm0-120q17 0 28.5-11.5T520-400v-120q0-17-11.5-28.5T480-560q-17 0-28.5 11.5T440-520v120q0 17 11.5 28.5T480-360Z')
+      //       path.setAttribute('fill', '#c1121f')
+      //     } else if (type === 'info') {
+      //       // Path for an info icon
+      //       path.setAttribute('d', 'M480-280q17 0 28.5-11.5T520-320v-160q0-17-11.5-28.5T480-520q-17 0-28.5 11.5T440-480v160q0 17 11.5 28.5T480-280Zm0-320q17 0 28.5-11.5T520-640q0-17-11.5-28.5T480-680q-17 0-28.5 11.5T440-640q0 17 11.5 28.5T480-600Zm0 520q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Z')
+      //       path.setAttribute('fill', '#495057')
+      //     } else if (type === 'bron') {
+      //       // Path for a different colored icon
+      //       path.setAttribute('d', 'M480-280q17 0 28.5-11.5T520-320v-160q0-17-11.5-28.5T480-520q-17 0-28.5 11.5T440-480v160q0 17 11.5 28.5T480-280Zm0-320q17 0 28.5-11.5T520-640q0-17-11.5-28.5T480-680q-17 0-28.5 11.5T440-640q0 17 11.5 28.5T480-600Zm0 520q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Z')
+      //       path.setAttribute('fill', '#0096c7')
+      //     }
+
+      //     icon.appendChild(path)
+      //     return icon
+      //   }
+
+      //   // ─────────────────────────────────────────────────────────────────────────────
+      //   // 3. Helper function to add list items using a 3-column grid
+      //   //    (Column 1: logo, Column 2: icon, Column 3: text)
+      //   // ─────────────────────────────────────────────────────────────────────────────
+      //   function addListItem (type, htmlContent) {
+      //     const listItem = document.createElement('li')
+
+      //     // Use CSS Grid with 3 columns
+      //     listItem.style.display = 'grid'
+      //     listItem.style.gridTemplateColumns = '60px 60px 1fr' // adjust as needed
+      //     listItem.style.columnGap = '8px'
+      //     listItem.style.alignItems = 'flex-start'
+      //     listItem.style.width = '100%' // Ensure full width
+
+      //     // Column 1: Logo
+      //     const logo = createLogo()
+
+      //     // Column 2: Icon (based on "type")
+      //     const icon = createIcon(type)
+
+      //     // Column 3: Text content
+      //     const text = document.createElement('span')
+      //     text.innerHTML = htmlContent
+
+      //     // You can modify font sizes if desired
+      //     if (type === 'title') {
+      //       text.style.fontSize = '20px'
+      //       text.style.fontWeight = 'bold'; // Example: Make titles bold
+      //     } else if (type === 'value') {
+      //       text.style.fontSize = '18px'
+      //     } else {
+      //       text.style.fontSize = '12px' // Default font size for other types
+      //     }
+
+      //     // Append columns
+      //     listItem.appendChild(logo)
+      //     listItem.appendChild(icon)
+      //     listItem.appendChild(text)
+
+      //     // Finally, append to the <ul> container
+      //     listContainer.appendChild(listItem)
+      //   }
+
+      //   // Parse the remarksData content as a string of HTML
+      //   const parser = new DOMParser()
+      //   const parsedHTML = parser.parseFromString(remarksData, 'text/html')
+
+      //   // Process <info>, <bron>, <aanname> elements
+      //   const infoItems = parsedHTML.querySelectorAll('info')
+      //   const bronItems = parsedHTML.querySelectorAll('bron')
+      //   const aannameItems = parsedHTML.querySelectorAll('aanname')
+
+      //   // Add each <info> item
+      //   infoItems.forEach(info => {
+      //     addListItem('info', info.innerHTML)
+      //   })
+
+      //   // Add each <bron> item
+      //   bronItems.forEach(bron => {
+      //     addListItem('bron', bron.innerHTML)
+      //   })
+
+      //   // Add each <aanname> item
+      //   aannameItems.forEach(aanname => {
+      //     addListItem('aanname', aanname.innerHTML)
+      //   })
+
+      //   // Create close button
+      //   const closeButton = document.createElement('button')
+      //   closeButton.id = 'closeButton'
+      //   closeButton.textContent = 'Sluit'
+
+      //   // Optional: Style the close button
+      //   closeButton.style.marginTop = '20px'
+      //   closeButton.style.padding = '10px 20px'
+      //   closeButton.style.backgroundColor = '#f44336'
+      //   closeButton.style.color = '#fff'
+      //   closeButton.style.border = 'none'
+      //   closeButton.style.borderRadius = '4px'
+      //   closeButton.style.cursor = 'pointer'
+
+      //   closeButton.onclick = function () {
+      //     d3.select('#popupContainer')
+      //       .style('background-color', 'rgba(0,0,0,0)')
+      //       .style('pointer-events', 'none')
+      //     popup.remove()
+      //     document.body.style.overflow = 'auto'
+      //   }
+
+      //   // Append listContainer + closeButton to the popup
+      //   popup.appendChild(listContainer)
+      //   popup.appendChild(closeButton)
+
+      //   // Optionally, add some styling to the popup
+      //   popup.style.position = 'fixed'
+      //   popup.style.top = '50%'
+      //   popup.style.left = '50%'
+      //   popup.style.transform = 'translate(-50%, -50%)'
+      //   popup.style.backgroundColor = '#fff'
+      //   popup.style.padding = '20px'
+      //   popup.style.borderRadius = '8px'
+      //   popup.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)'
+      //   popup.style.zIndex = '1001'; // Ensure it's above the dimmed background
+      //   popup.style.maxHeight = '80vh'; // Optional: Limit popup height
+      //   popup.style.overflowY = 'auto'; // Optional: Add scroll if content overflows
+
+      //   // Finally, insert the popup into #popupContainer
+      //   const popupContainer = document.getElementById('popupContainer')
+      //   popupContainer.appendChild(popup)
+
+      //   console.log('ENTER')
+
+      // // Observe body style to keep it from scrolling
+      // // Ensure that 'observer' is defined somewhere in your code
+      // // If not, you can comment out or remove the following lines
+      // /*
+      // observer.observe(document.body, { attributes: true, attributeFilter: ['style'] })
+      // */
+      // })
 
       sankeyCanvas.append('text')
         .attr('class', 'node-remark-number')
@@ -1959,207 +1613,8 @@ function initSankey (config) {
         .text(function (d) {
           // console.log(d)
 
-          // add data to printable remarks list on bottom of visual
-          // console.log(d.remark[currentScenarioID])
-          // console.log(currentScenarioID)
-          // console.log(sankeyData.nodes[i].remark[currentScenarioID + 1])
-          // addToRemarksContainer(sankeyData.nodes[i].remark[currentScenarioID + 1], sankeyData.nodes[i].index + 1) // start counting at 1 instead of zero
-
           return sankeyData.nodes[i].index + 1}) // start counting at 1 instead of zero
-
-    // sankeyCanvas.append('rect') // EDIT TIJS  - add
-    //   .attr('class', 'node-remarks')
-    //   .attr('width', 20)
-    //   .attr('height', 20)
-    //   .attr('y', 400)
-    //   .attr('x', 300)
-    //   .attr('rx', 3).attr('ry', 3)
-    //   .attr('fill', 'black')
-    //   .attr('id', 'POEPEN')
-    //   .attr('transform', 'translate(100,100)')
     }
-
-    // selection.append('path') // EDIT TIJS  - add
-    //   .attr('d', 'M152-160q-23 0-35-20.5t1-40.5l328-525q12-19 34-19t34 19l328 525q13 20 1 40.5T808-160H152Z')
-    //   .attr('class', 'node-remarks')
-    //   .attr('height', 20)
-    //   .attr('y', -11)
-    //   .attr('x', 15)
-    //   .attr('rx', 3).attr('ry', 3)
-    //   .attr('fill', function (d) {
-    //     function containsAanname (inputString) {
-    //       // Create a new DOMParser to parse the input string as HTML
-    //       const parser = new DOMParser()
-    //       const parsedHTML = parser.parseFromString(inputString, 'text/html')
-    //       // Check if there are any <info> or <aanname> elements in the parsed HTML
-    //       const infoItems = parsedHTML.querySelectorAll('info')
-    //       const aannameItems = parsedHTML.querySelectorAll('aanname')
-    //       // Return TRUE if at least one <info> or <aanname> item is present, otherwise return FALSE
-    //       return aannameItems.length > 0
-    //     }
-
-    //     if (containsAanname(d.remark[currentScenarioID + 1])) {return '#c1121f'} else {return '#495057'} // if only 'info', then 'orange', if 'aanname', then 'red' 
-    //   })
-    //   // .attr('opacity',1)
-    //   .attr('opacity', function (d) { // only show marker if there's info or aanname applicable. Note: used opacity instead of 'visibility' attribute, because visibility attribute is used elsewhere  
-    //     function containsInfoOrAanname (inputString) {
-    //       // Create a new DOMParser to parse the input string as HTML
-    //       const parser = new DOMParser()
-    //       const parsedHTML = parser.parseFromString(inputString, 'text/html')
-    //       // Check if there are any <info> or <aanname> elements in the parsed HTML
-    //       const infoItems = parsedHTML.querySelectorAll('info')
-    //       const aannameItems = parsedHTML.querySelectorAll('aanname')
-    //       const bronItems = parsedHTML.querySelectorAll('bron')
-    //       // Return TRUE if at least one <info> or <aanname> item is present, otherwise return FALSE
-    //       return infoItems.length > 0 || aannameItems.length > 0 || bronItems.length > 0
-    //     }
-
-    //     if (containsInfoOrAanname(d.remark[currentScenarioID + 1])) {return 1} else {return 0}
-    //   })
-    //   //   .on('click', function(){
-    //   //     const popup = document.createElement('div')
-    //   //     // const remarksList = d3.select('#remarksContainer')
-    //   //     popup.id = 'popup'
-    //   //     d3.select('#popupContainer').style('background-color', 'rgba(0,0,0,0.3)')
-    //   //     console.log('currentScenarioID: ' + currentScenarioID)
-
-    // //     // Parse remarksData for the current scenario
-    //   //     const remarksData = JSON.parse(d3.select(this).attr('remarksData'))[currentScenarioID+1]
-    //   //     // addToRemarksContainer(remarksData)
-    //   //     const titleData = 'Node <strong>' +d3.select(this).attr('titleData') + '</strong>' // .replace(/"/g, '')
-    //   //     const valueData = d3.select(this).attr('valueData') + ' PJ'
-
-    // //     // Create a bullet list container
-    //   //     const listContainer = document.createElement('ul')
-
-    // //     // Create a helper function to create icons based on type
-    //   //     function createIcon(type) {
-    //   //         const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
-    //   //         icon.setAttribute('width', '60')
-    //   //         icon.setAttribute('height', '60')
-    //   //         icon.setAttribute('viewBox', '0 -960 960 960')
-    //   //         icon.setAttribute('transform', 'scale(1.5)')
-
-    // //         const path = document.createElementNS('http://www.w3.org/2000/svg', 'path')
-
-    // //         if (type === 'aanname') {
-    //   //             // Path for the warning icon (same as your original code)
-    //   //             path.setAttribute('d', 'M109-120q-11 0-20-5.5T75-140q-5-9-5.5-19.5T75-180l370-640q6-10 15.5-15t19.5-5q10 0 19.5 5t15.5 15l370 640q6 10 5.5 20.5T885-140q-5 9-14 14.5t-20 5.5H109Zm371-120q17 0 28.5-11.5T520-280q0-17-11.5-28.5T480-320q-17 0-28.5 11.5T440-280q0 17 11.5 28.5T480-240Zm0-120q17 0 28.5-11.5T520-400v-120q0-17-11.5-28.5T480-560q-17 0-28.5 11.5T440-520v120q0 17 11.5 28.5T480-360Z')
-    //   //             path.setAttribute('fill','#c1121f')
-    //   //           } else if (type === 'info') {
-    //   //             // Path for a different info icon
-    //   //             path.setAttribute('d', 'M480-280q17 0 28.5-11.5T520-320v-160q0-17-11.5-28.5T480-520q-17 0-28.5 11.5T440-480v160q0 17 11.5 28.5T480-280Zm0-320q17 0 28.5-11.5T520-640q0-17-11.5-28.5T480-680q-17 0-28.5 11.5T440-640q0 17 11.5 28.5T480-600Zm0 520q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Z')
-    //   //             path.setAttribute('fill','#495057')
-    //   //           } else if (type === 'bron'){
-    //   //             path.setAttribute('d', 'M480-280q17 0 28.5-11.5T520-320v-160q0-17-11.5-28.5T480-520q-17 0-28.5 11.5T440-480v160q0 17 11.5 28.5T480-280Zm0-320q17 0 28.5-11.5T520-640q0-17-11.5-28.5T480-680q-17 0-28.5 11.5T440-640q0 17 11.5 28.5T480-600Zm0 520q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Z')
-    //   //             path.setAttribute('fill','#0096c7') 
-    //   //           }
-
-    // //         icon.appendChild(path)
-    //   //         return icon
-    //   //     }
-
-    // //     addListItem('title',titleData)
-    //   //     addListItem('value',valueData)
-    //   //     // Create a helper function to add list items
-    //   //     function addListItem(type, htmlContent) {
-    //   //         const listItem = document.createElement('li')
-    //   //         listItem.style.display = 'flex'  // To position the icon and text inline
-    //   //         listItem.style.alignItems = 'flex-start'  // Align the icon to the top
-
-    // //         const icon = createIcon(type)
-    //   //         icon.style.marginRight = '8px'  // Add space between icon and text
-
-    // //         const text = document.createElement('span')
-    //   //         text.innerHTML = htmlContent;  // Use innerHTML to support HTML content like <strong>
-
-    // //         listItem.appendChild(icon)
-    //   //         listItem.appendChild(text)
-
-    // //         if (type == "title"){
-    //   //           text.style.fontSize = '20px'
-    //   //         }
-    //   //         if (type == "value"){
-    //   //           text.style.fontSize = '18px'
-    //   //         }
-
-    // //         listContainer.appendChild(listItem)
-    //   //     }
-
-    // //     // Parse the remarksData content as a string of HTML-like text
-    //   //     const parser = new DOMParser()
-    //   //     const parsedHTML = parser.parseFromString(remarksData, 'text/html')
-
-    // //     // Process <info> and <aanname> elements
-    //   //     const infoItems = parsedHTML.querySelectorAll('info')
-    //   //     const bronItems = parsedHTML.querySelectorAll('bron')
-    //   //     const aannameItems = parsedHTML.querySelectorAll('aanname')
-
-    // //     // Add each <info> element to the list with the appropriate icon and content
-    //   //     infoItems.forEach(info => {
-    //   //         addListItem('info', info.innerHTML);  // innerHTML will preserve <strong> tags
-    //   //     })
-    //   //        // Add each <bron> element to the list with the appropriate icon and content
-    //   //        bronItems.forEach(aanname => {
-    //   //         addListItem('bron', aanname.innerHTML);  // innerHTML will preserve <strong> tags
-    //   //     })
-
-    // //     // Add each <aanname> element to the list with the appropriate icon and content
-    //   //     aannameItems.forEach(aanname => {
-    //   //         addListItem('aanname', aanname.innerHTML);  // innerHTML will preserve <strong> tags
-    //   //     })
-
-    // //     // Create close button
-    //   //     const closeButton = document.createElement('button')
-    //   //     closeButton.id = 'closeButton'
-    //   //     closeButton.textContent = 'Sluit'
-    //   //     closeButton.onclick = function() {
-    //   //         d3.select('#popupContainer').style('background-color', 'rgba(0,0,0,0)')
-    //   //         popup.remove()  // Remove popup when button is clicked
-    //   //     }
-
-    // //     // Append list and close button to popup
-    //   //     popup.appendChild(listContainer)
-    //   //     popup.appendChild(closeButton)
-
-    // //     // remarksList.appendChild(listContainer)''
-
-    // //     // Get main container and append popup
-    //   //     const popupContainer = document.getElementById('popupContainer')
-    //   //     popupContainer.appendChild(popup)
-
-    // //                   // Clone the listContainer before appending it to remarksList
-    //   //     // const clonedListContainer = listContainer.cloneNode(true) // true for deep clone
-
-    // //     // Get the remarksContainer and append the cloned listContainer
-    //   //     // const remarksList = document.getElementById('remarksContainer')
-    //   //     // remarksList.appendChild(clonedListContainer)
-    //   // })
-
-    // selection.append('text')
-    //   .attr('class', 'node-remark-number')
-    //   .attr('dy', 6)
-    //   .attr('fill', '#FFF')
-    //   .style('font-weight', 800)
-    //   .style('font-size', '10px')
-    //   .attr('text-anchor', 'middle')
-    //   .attr('dx', 22)
-    //   .style('pointer-events', 'none')
-    //   .attr('opacity', function (d) { // only show marker if there's info or aanname applicable. Note: used opacity instead of 'visibility' attribute, because visibility attribute is used elsewhere  
-    //     function containsInfoOrAanname (inputString) {
-    //       // Create a new DOMParser to parse the input string as HTML
-    //       const parser = new DOMParser()
-    //       const parsedHTML = parser.parseFromString(inputString, 'text/html')
-    //       // Check if there are any <info> or <aanname> elements in the parsed HTML
-    //       const infoItems = parsedHTML.querySelectorAll('info')
-    //       const aannameItems = parsedHTML.querySelectorAll('aanname')
-    //       const bronItems = parsedHTML.querySelectorAll('bron')
-    //       // Return TRUE if at least one <info> or <aanname> item is present, otherwise return FALSE
-    //       return infoItems.length > 0 || aannameItems.length > 0 || bronItems.length > 0
-    //     }
-
-    //     if (containsInfoOrAanname(d.remark[currentScenarioID + 1])) {return 1} else {return 0}
-    //   })
 
     console.log(config.settings)
     updateSankey(JSON.stringify(sankeyData), config.settings[0].offsetX, config.settings[0].offsetY, config.settings[0].fontSize, config.settings[0].font)
@@ -2247,16 +1702,6 @@ function drawBarGraph (data, config) {
 
   d3.select('#popupContainer').style('background-color', 'rgba(0,0,0,0.3)').style('pointer-events', 'none')
 
-  // Show popup blinder with transition
-  // d3.select('#popupBlinder')
-  //   .style('visibility', 'visible')
-  //   .style('opacity', 0)
-  //   .transition().duration(300)
-  //   .style('opacity', 0.3)
-  //   .style('pointer-events', 'auto')
-
-  // Create and style the main popup container
-  // const popup = d3.select(`#${config.targetDIV}`)
   const popup = d3.select(`#popupContainer`)
     .append('div')
     .attr('id', 'nodeInfoPopup')
@@ -2326,10 +1771,6 @@ function drawBarGraph (data, config) {
       d3.select('#nodeInfoPopup').remove()
       d3.select('#popupContainer').style('background-color', 'rgba(0,0,0,0)').style('pointer-events', 'none')
       document.body.style.overflow = 'auto'
-
-    // d3.select('#popupBlinder')
-    //   .style('visibility', 'hidden')
-    //   .style('pointer-events', 'none')
     })
   // document.documentElement.style.overflow = 'hidden'; // For <html>
   document.body.style.overflow = 'hidden'; // For <body>ß
@@ -2340,53 +1781,6 @@ function drawBarGraph (data, config) {
     .attr('id', `${config.targetDIV}_closeButton`)
     .attr('d', 'm249 849-42-42 231-231-231-231 42-42 231 231 231-231 42 42-231 231 231 231-42 42-231-231-231 231Z')
     .attr('transform', 'translate(931,27)scale(0.04)')
-
-  // // Add vertical rectangles representing scenario groups
-    // var rectsData = [
-    //   { width: 105, height: 270, x: 244, y: 130 + 40, fill: '#eee', text: 'TOTAAL' },
-    //   { width: 105, height: 270, x: 359, y: 130 + 40, fill: '#eee', text: "R'dam-Mrd." },
-    //   { width: 105, height: 270, x: 474, y: 130 + 40, fill: '#eee', text: 'Zeeland' },
-    //   { width: 105, height: 270, x: 589, y: 130 + 40, fill: '#eee', text: 'NZKG' },
-    //   { width: 105, height: 270, x: 704, y: 130 + 40, fill: '#eee', text: 'Noord-NL' },
-    //   { width: 105, height: 270, x: 819, y: 130 + 40, fill: '#eee', text: 'Chemelot' }
-    // ]
-
-  // rectsData.forEach(d => {
-    //   canvas.append('rect')
-    //     .attr('width', d.width)
-    //     .attr('height', d.height)
-    //     .attr('x', d.x)
-    //     .attr('y', d.y)
-    //     .attr('fill', d.fill)
-    //   canvas.append('text')
-    //     .attr('x', d.x + 10)
-    //     .attr('y', d.y - 20 - 5)
-    //     .style('font-weight', 600)
-    //     .attr('fill', 'white')
-    //     .style('font-size', '15px')
-    //     .text(d.text)
-    // })
-
-  // rectsData = [
-    //   { width: 335, height: 3, x: 244, y: 80 - 10 + 35,  fill: '#999', text: 'WACC 2.25%' },
-    //   { width: 335, height: 3, x: 600 - 11, y: 80 - 10 + 35,  fill: '#999', text: 'WACC 4% - 8%' }
-    // ]
-
-  // rectsData.forEach(d => {
-    //   canvas.append('rect')
-    //     .attr('width', d.width)
-    //     .attr('height', d.height)
-    //     .attr('x', d.x)
-    //     .attr('y', d.y)
-    //     .attr('fill', d.fill)
-    //   canvas.append('text')
-    //     .attr('x', d.x)
-    //     .attr('y', d.y - 20 + 10)
-    //     .attr('fill', '#777')
-    //     .style('font-weight', 500)
-    //     .style('font-size', '15px')
-    //     .text(d.text)
-    // })
 
   // Chart dimensions and scales
   const margin = { top: 10, right: 30, bottom: 30, left: 60 }
@@ -2562,60 +1956,6 @@ function drawBarGraph (data, config) {
 
 let currentScenarioID = 0
 
-function lookupScenarioID () {
-  let key = currentScenario + '_' + currentZichtjaar
-  switch (key) {
-    case 'c_2020':
-      currentScenarioID = 0
-      return 0
-    case 'c_2030':
-      currentScenarioID = 1
-      return 1
-    case 'c_2035':
-      currentScenarioID = 2
-      return 2
-    case 'c_2040':
-      currentScenarioID = 3
-      return 3
-    case 'c_2050':
-      currentScenarioID = 4
-      return 4
-    case 'nat_2020':
-      currentScenarioID = 0
-      return 0
-    case 'nat_2030':
-      currentScenarioID = 5
-      return 5
-    case 'nat_2035':
-      currentScenarioID = 6
-      return 6
-    case 'nat_2040':
-      currentScenarioID = 7
-      return 7
-    case 'nat_2050':
-      currentScenarioID = 8
-      return 8
-    case 'int_2020':
-      currentScenarioID = 0
-      return 0
-    case 'int_2030':
-      currentScenarioID = 9
-      return 9
-    case 'int_2035':
-      currentScenarioID = 10
-      return 10
-    case 'int_2040':
-      currentScenarioID = 11
-      return 11
-    case 'int_2050':
-      currentScenarioID = 12
-      return 12
-    default:
-      console.log('ERROR - unknown scenario')
-      break
-  }
-}
-
 function wrap (text, width) {
   text.each(function () {
     var text = d3.select(this),
@@ -2646,160 +1986,177 @@ function drawRemarks () {
   d3.select('#remarksContainer').html('') // EDIT TIJS - add
   for (i = 0;i < sankeyData.nodes.length;i++) {
     // console.log(sankeyData.nodes[i])
-    addToRemarksContainer(sankeyData.nodes[i].remark[currentScenarioID + 1], sankeyData.nodes[i].index + 1) // start counting at 1 instead of zero
+    addToRemarksContainer('remarksContainer', sankeyData.nodes[i].remark[currentScenarioID + 1], sankeyData.nodes[i].index + 1) // start counting at 1 instead of zero
   }
 }
 
-function addToRemarksContainer (remarksData2, index) {
-  // console.log(remarksData2)
-  // Create a bullet list container
-  const listContainer2 = document.createElement('ul')
-
-  // Create a helper function to create icons based on type
-  function createIcon (type) {
-    const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
-    icon.setAttribute('width', '60')
-    icon.setAttribute('height', '60')
-    icon.setAttribute('viewBox', '0 -960 960 960')
-    icon.setAttribute('transform', 'scale(1.1)')
-
-    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path')
-
-    if (type === 'aanname') {
-      // Path for the warning icon
-      path.setAttribute('d', 'M109-120q-11 0-20-5.5T75-140q-5-9-5.5-19.5T75-180l370-640q6-10 15.5-15t19.5-5q10 0 19.5 5t15.5 15l370 640q6 10 5.5 20.5T885-140q-5 9-14 14.5t-20 5.5H109Zm371-120q17 0 28.5-11.5T520-280q0-17-11.5-28.5T480-320q-17 0-28.5 11.5T440-280q0 17 11.5 28.5T480-240Zm0-120q17 0 28.5-11.5T520-400v-120q0-17-11.5-28.5T480-560q-17 0-28.5 11.5T440-520v120q0 17 11.5 28.5T480-360Z')
-      path.setAttribute('fill', '#c1121f')
-    } else if (type === 'info') {
-      // Path for a different info icon
-      path.setAttribute('d', 'M480-280q17 0 28.5-11.5T520-320v-160q0-17-11.5-28.5T480-520q-17 0-28.5 11.5T440-480v160q0 17 11.5 28.5T480-280Zm0-320q17 0 28.5-11.5T520-640q0-17-11.5-28.5T480-680q-17 0-28.5 11.5T440-640q0 17 11.5 28.5T480-600Zm0 520q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Z')
-      path.setAttribute('fill', '#495057')
-    } else if (type === 'bron') {
-      path.setAttribute('d', 'M480-280q17 0 28.5-11.5T520-320v-160q0-17-11.5-28.5T480-520q-17 0-28.5 11.5T440-480v160q0 17 11.5 28.5T480-280Zm0-320q17 0 28.5-11.5T520-640q0-17-11.5-28.5T480-680q-17 0-28.5 11.5T440-640q0 17 11.5 28.5T480-600Zm0 520q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Z')
-      path.setAttribute('fill', '#0096c7')
-    }
-
-    icon.appendChild(path)
-    return icon
-  }
-
-  // Create a helper function to add list items
-  function addListItem (type, htmlContent) {
-    const listItem2 = document.createElement('li')
-    listItem2.style.display = 'flex' // To position the icon and text inline
-    listItem2.style.alignItems = 'flex-start' // Align the icon to the top
-
-    const icon = createIcon(type)
-    icon.style.marginRight = '8px' // Add space between icon and text
-
-    const text = document.createElement('span')
-    text.innerHTML = htmlContent; // Use innerHTML to support HTML content like <strong>
-
-    listItem2.appendChild(icon)
-    listItem2.appendChild(text)
-
-    if (type == 'title') {
-      text.style.fontSize = '20px'
-    }
-    if (type == 'value') {
-      text.style.fontSize = '18px'
-    }
-
-    listContainer2.appendChild(listItem2)
-  }
-
-  // Parse the remarksData content as a string of HTML-like text
+function addToRemarksContainer (targetdiv, remarksData2, index) {
+  // Parse any <info>, <aanname>, <bron> from the remarksData2 HTML string
   const parser = new DOMParser()
-
   const parsedHTML = parser.parseFromString(remarksData2, 'text/html')
 
-  // Process <info> and <aanname> elements
   const infoItems = parsedHTML.querySelectorAll('info')
   const aannameItems = parsedHTML.querySelectorAll('aanname')
   const bronItems = parsedHTML.querySelectorAll('bron')
 
-  // If no <info> or <aanname> elements are found, exit the function
+  // If there are no recognized custom tags, exit early
   if (infoItems.length === 0 && aannameItems.length === 0 && bronItems.length === 0) {
-    return; // Don't append anything if there are no <info> or <aanname> items
+    return
   }
 
-  // Add each <info> element to the list with the appropriate icon and content
-  infoItems.forEach(info => {
-    addListItem('info', info.innerHTML); // innerHTML will preserve <strong> tags
+  // Create a 2-column "wrapper":
+  //   Column #1: The big "A" path
+  //   Column #2: A <ul> with multiple <li> entries
+  const wrapper = document.createElement('div')
+  wrapper.style.display = 'grid'
+  // Adjust the width of the first column (where the big "A" goes) to your liking
+  wrapper.style.gridTemplateColumns = '0px auto'
+  wrapper.style.columnGap = '16px'
+  wrapper.style.alignItems = 'start'
+  // Optional margin to space out each entire group
+  wrapper.style.marginBottom = '24px'
+  wrapper.style.marginRight = '0px'
+
+  // 1) Left column: the big "A" SVG
+  const leftColumn = document.createElement('div')
+  // We'll create the big "A" via a helper function
+  const bigASVG = createBigA(index, remarksData2)
+  leftColumn.appendChild(bigASVG)
+
+  // 2) Right column: a <ul> that holds the different remarks
+  const rightColumn = document.createElement('ul')
+  rightColumn.style.listStyleType = 'none'
+  rightColumn.style.padding = '0' // remove default padding
+  rightColumn.style.margin = '0' // remove default margin
+
+  // Attach columns to the wrapper
+  wrapper.appendChild(leftColumn)
+  wrapper.appendChild(rightColumn)
+
+  // A small helper to add an <li> with an icon (left) and text (right)
+  function addListItem (tagType, content) {
+    const li = document.createElement('li')
+
+    // Each <li> is effectively another 2-column layout
+    li.style.display = 'grid'
+    li.style.gridTemplateColumns = '80px auto'; // icon column + text column
+    li.style.alignItems = 'start'
+    li.style.columnGap = '8px'
+    li.style.marginBottom = '8px' // space between each item
+
+    // The small icon
+    const icon = createIcon(tagType)
+    // The text next to the icon
+    const textSpan = document.createElement('span')
+    textSpan.innerHTML = content // keep HTML if needed
+
+    // Append icon + text to li
+    li.appendChild(icon)
+    li.appendChild(textSpan)
+
+    // (Optional: styling based on type, e.g., bigger font for <aanname> or so)
+    // if (tagType === 'aanname') {
+    //   textSpan.style.fontWeight = 'bold'
+    // }
+
+    rightColumn.appendChild(li)
+  }
+
+  // Finally, loop over each item found and add them as list items
+  infoItems.forEach((elem) => {
+    addListItem('info', elem.innerHTML)
   })
 
-  bronItems.forEach(bron => {
-    addListItem('bron', bron.innerHTML); // innerHTML will preserve <strong> tags
+  bronItems.forEach((elem) => {
+    addListItem('bron', elem.innerHTML)
   })
 
-  // Add each <aanname> element to the list with the appropriate icon and content
-  aannameItems.forEach(aanname => {
-    addListItem('aanname', aanname.innerHTML); // innerHTML will preserve <strong> tags
+  aannameItems.forEach((elem) => {
+    addListItem('aanname', elem.innerHTML)
   })
 
-  // console.log(aannameItems)
+  // Append everything to #remarksContainer
+  document.getElementById(targetdiv).appendChild(wrapper)
+}
 
-  // Create the two-column layout container
-  const twoColumnContainer = document.createElement('div')
-  twoColumnContainer.style.display = 'flex' // Flexbox for two columns
+/**
+ * Helper function to create the big "A" (or any index letter/number) in an SVG.
+ * Color depends on whether <aanname> appears in remarksData2.
+ */
+function createBigA (index, remarksData2) {
+  // Create the SVG element
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+  svg.setAttribute('width', '60')
+  svg.setAttribute('height', '60')
+  svg.setAttribute('viewBox', '0 -960 960 960')
 
-  // Left column: SVG path with 'A' in it
-  const leftColumn = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
-  leftColumn.setAttribute('width', '60')
-  leftColumn.setAttribute('height', '60')
-  leftColumn.setAttribute('viewBox', '0 -960 960 960')
-
-  // Create the path element with the given `d` attribute
+  // Main path
   const path = document.createElementNS('http://www.w3.org/2000/svg', 'path')
   path.setAttribute('d', 'M152-160q-23 0-35-20.5t1-40.5l328-525q12-19 34-19t34 19l328 525q13 20 1 40.5T808-160H152Z')
-  path.setAttribute('transform', 'translate(875,-770)rotate(180)scale(0.8)')
-  path.setAttribute('fill', (function (remarksData2) {
-    // console.log(remarksData2)
+  path.setAttribute('transform', 'translate(1075,-970) rotate(180) scale(0.8)')
 
-    function containsAanname (inputString) {
-      // Create a new DOMParser to parse the input string as HTML
-      const parser = new DOMParser()
-      const parsedHTML = parser.parseFromString(inputString, 'text/html')
-      // Check if there are any <info> or <aanname> elements in the parsed HTML
-      const infoItems = parsedHTML.querySelectorAll('info')
-      const aannameItems = parsedHTML.querySelectorAll('aanname')
-      const bronItems = parsedHTML.querySelectorAll('bron')
-      // Return TRUE if at least one <info> or <aanname> item is present, otherwise return FALSE
-      return aannameItems.length > 0
-    }
+  // Decide fill color based on <aanname> presence
+  const fillColor = hasAanname(remarksData2) ? '#c1121f' : '#495057'
+  path.setAttribute('fill', fillColor)
 
-    // Set the fill color based on the presence of <aanname> elements
-    return containsAanname(remarksData2) ? '#c1121f' : '#495057'; // if 'aanname', return 'red', else 'orange'
-  })(remarksData2)); // Execute the function with 'remarksData2'
+  svg.appendChild(path) // disable i
 
-  // Add the path to the leftColumn (SVG)
-  leftColumn.appendChild(path)
-
-  // Create a text element to overlay the letter 'A'
+  // Overlay text (the 'A' or your index)
   const textA = document.createElementNS('http://www.w3.org/2000/svg', 'text')
-  textA.setAttribute('x', '50%')
-  textA.setAttribute('y', '-430'); // Adjust the position for the letter 'A'
-  textA.setAttribute('dominant-baseline', 'middle')
+  textA.setAttribute('x', '690')
+  textA.setAttribute('y', '-650')
   textA.setAttribute('text-anchor', 'middle')
+  textA.setAttribute('dominant-baseline', 'middle')
   textA.setAttribute('font-size', '224')
   textA.setAttribute('fill', 'white')
   textA.setAttribute('font-weight', 'bold')
-  textA.textContent = index
+  textA.textContent = index; // e.g. 'A' or '1' or something
 
-  // Add the text 'A' to the leftColumn (SVG)
-  leftColumn.appendChild(textA)
+  svg.appendChild(textA)
 
-  // Right column: the content of listContainer2
-  const rightColumn = document.createElement('div')
-  rightColumn.style.flex = '1' // Make the right column take up the remaining space
-  rightColumn.appendChild(listContainer2)
+  return svg
+}
 
-  // Append both columns to the two-column container
-  twoColumnContainer.appendChild(leftColumn)
-  twoColumnContainer.appendChild(rightColumn)
+/**
+ * Helper function to detect if <aanname> tags exist in the given string.
+ */
+function hasAanname (inputString) {
+  const parser = new DOMParser()
+  const parsedHTML = parser.parseFromString(inputString, 'text/html')
+  const aannameItems = parsedHTML.querySelectorAll('aanname')
+  return aannameItems.length > 0
+}
 
-  // Get the remarksContainer and append the two-column container
-  // console.log(twoColumnContainer)
-  const remarksList = document.getElementById('remarksContainer')
-  // d3.select('#remarksContainer').html('') // EDIT TIJS - add
-  remarksList.appendChild(twoColumnContainer)
+/**
+ * Helper function to create the small icon (info/aanname/bron).
+ * You can adjust sizes, colors, paths as needed.
+ */
+function createIcon (type) {
+  const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+  icon.setAttribute('width', '32')
+  icon.setAttribute('height', '32')
+  icon.setAttribute('viewBox', '0 -960 960 960')
+
+  // Shift the icon downward:
+  icon.style.position = 'relative'
+  icon.style.top = '8px' // Adjust as needed
+  icon.style.scale = 0.9
+
+  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path')
+
+  if (type === 'aanname') {
+    path.setAttribute('d', 'M109-120q-11 0-20-5.5T75-140q-5-9-5.5-19.5T75-180l370-640q6-10 15.5-15t19.5-5q10 0 19.5 5t15.5 15l370 640q6 10 5.5 20.5T885-140q-5 9-14 14.5t-20 5.5H109Zm371-120q17 0 28.5-11.5T520-280q0-17-11.5-28.5T480-320q-17 0-28.5 11.5T440-280q0 17 11.5 28.5T480-240Zm0-120q17 0 28.5-11.5T520-400v-120q0-17-11.5-28.5T480-560q-17 0-28.5 11.5T440-520v120q0 17 11.5 28.5T480-360Z')
+    path.setAttribute('fill', '#c1121f')
+  }
+  else if (type === 'info') {
+    path.setAttribute('d', 'M480-280q17 0 28.5-11.5T520-320v-160q0-17-11.5-28.5T480-520q-17 0-28.5 11.5T440-480v160q0 17 11.5 28.5T480-280Zm0-320q17 0 28.5-11.5T520-640q0-17-11.5-28.5T480-680q-17 0-28.5 11.5T440-640q0 17 11.5 28.5T480-600Zm0 520q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Z')
+    path.setAttribute('fill', '#495057')
+  }
+  else if (type === 'bron') {
+    path.setAttribute('d', 'M480-280q17 0 28.5-11.5T520-320v-160q0-17-11.5-28.5T480-520q-17 0-28.5 11.5T440-480v160q0 17 11.5 28.5T480-280Zm0-320q17 0 28.5-11.5T520-640q0-17-11.5-28.5T480-680q-17 0-28.5 11.5T440-640q0 17 11.5 28.5T480-600Zm0 520q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Z')
+    path.setAttribute('fill', '#0096c7')
+  }
+
+  // icon.appendChild(path) // disable i-logo
+  return icon
 }

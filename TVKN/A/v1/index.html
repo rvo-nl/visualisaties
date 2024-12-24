@@ -1,13 +1,46 @@
 <!DOCTYPE html>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<link rel="stylesheet" href="css/style.css">
-<html>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link
-  href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
-  rel="stylesheet">
+<html lang="en">
+
+<head>
+
+  <!-- Basic Page Needs
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta charset="utf-8">
+  <title>Scenarioviewer TVKN</title>
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link
+    href="//fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+    rel="stylesheet" type="text/css">
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-PVS4RE0ZKM"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-PVS4RE0ZKM');
+  </script>
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="stylesheet" href="css/milligram.css">
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- Favicon
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <!-- <link rel="icon" type="image/png" href="images/favicon.png"> -->
+
+</head>
 
 <script>
   dataSource = 'file';
@@ -21,79 +54,270 @@
 </script>
 
 <body>
-  <div class="triangle-container">
-    <div class="beta-label">CONCEPT</div>
-  </div>
-  <div id="main">
-    <!-- <div id="downloadUploadFile"><span style="margin-left:5px;margin-top:4px;margin-right:10px;color:#666">Open
-        Data</span></div> -->
-    <div id="buttonsContainerReference">
-      <div id="buttonsContainer">
-        <div id="scenarioButtons"></div>
-        <div id="yearButtons"></div>
-        <div class="buttonTitles"
-          style="visibility:hidden;position:absolute;top:25px;left:-80px;width:200px;font-size:12px;font-weight:400;text-align:right;">
-          Scenario</div>
-        <div id="jaarButtonsTitle" class="buttonTitles"
-          style="visibility:hidden;position:absolute;top:65px;left:-80px;width:200px;font-size:12px;font-weight:400;text-align:right;">
-          Jaar</div>
-      </div>
-    </div>
-    <div id="loadFileDialog">
-      <script>
-        // Update the div content dynamically
-        document.getElementById('loadFileDialog').innerHTML = `
-      <span style="font-weight:300;font-size:28px">Importeer xlsx-bestand </span>
-        <br><br>
-        <span style="font-weight:400;font-size:12px">script: 
-          ${projectID}_${productID}_${versionID}</span>
+  <div id="liner"></div>
+  <div id="loadFileDialog"></div>
+  <div id="showValueOnHover"></div>
+  <script>
+    // Update the div content dynamically
+    document.getElementById('loadFileDialog').innerHTML = `
+  <span style="font-weight:300;font-size:28px">Importeer xlsx-bestand </span>
+    <br><br>
+    <span style="font-weight:400;font-size:12px">script: 
+      ${projectID}_${productID}_${versionID}</span>
 
+      <br><br><br>
+  `;
+  </script>
+  <div id="main-container">
+    <div class="content-fullwidth" style="padding:0px">
+      <div class="concept-label" style="float: right;">
+        CONCEPT
+      </div>
+      <div class="content-fullwidth" style="padding:0px">
+        <div class="version-label">
+          Versie 19122024
+        </div>
+      </div>
+
+      <div class="full-width-container">
+        <div class="content-constrained">
           <br><br><br>
-      `;
-      </script>
-    </div>
-    <div id="mainContainer">
+          <h3>Scenarioviewer Trajectverkenning Klimaatneutraal</h3>
+          <br><br>
+          <p style="line-height:30px;">
+            In de <a href="https://www.pbl.nl/publicaties/trajectverkenning-klimaatneutraal-2050"
+              target="_blank">Trajectverkenning Klimaatneutraal (TVKN)</a> heeft het PBL meer dan 30 scenario’s
+            doorgerekend om paden naar een klimaatneutraal Nederland in 2050 te
+            verkennen. Deze viewer visualiseert die scenario's in een aantal
+            interactieve datavisualisaties. Dit is een demo-versie met de uitwerking van het eerste onderdeel; een
+            integrale weergave van alle gemodelleerde energiestromen in de vorm van een Sankey-diagram. In toekomstige
+            versies worden additionele visualisaties over
+            uitgangspunten, CO₂-emissies, activiteitenniveaus, opgestelde vermogens en kosten toegevoegd.</p>
+        </div>
+        <div class="content-fullwidth" style="padding:0px;background-color:#DCE6EF;height:40px;"></div>
+        <div class="content-fullwidth sticky" style="background-color:#DCE6EF;padding-bottom:0px;padding-top:0px;">
+          <div class="menuContainer">
 
-      <div id="mainContainerHeader"></div>
-      <div id="mainContainerBackdrop"></div>
-      <div id="mainContainerOverlay"></div>
+            <div class="menuContainer-part">
+              <p style="font-size:14px;font-weight:500;text-align:right;padding-top:5px;padding-right:10px;">Scenario
+              </p>
+            </div>
+            <div class="menuContainer-part" id="scenarioButtons">
 
-      <div id="sankeyContainer">
-        <div id="sankeyContainer_header"></div>
-        <div id="sankeyContainer_main"></div>
+            </div>
+            <div class="menuContainer-part">
+              <p
+                style="font-size:14px;font-weight:500;text-align:right;padding-top:10px;padding-right:10px;margin-bottom:0px;">
+                Jaar</p>
+            </div>
+            <div class="menuContainer-part" id="yearButtons">
+            </div>
+          </div>
+        </div>
+
+        <div class="content-fullwidth" style="padding:0px;background-color:#DCE6EF;height:30px;"></div>
+
+        <div class="content-fullwidth" style="padding:0px;background-color:#EEF5FA">
+          <div id="unitSelector"></div>
+          <div class="content-constrained" style="padding-bottom:0px;">
+
+            <br>
+            <h4 style="margin-bottom:0px;">Sankey diagram | energiestromen</h4>
+            <!-- <p style="line-height:30px;margin-bottom:0px;"></p> -->
+          </div>
+        </div>
+        <div class="content-fullwidth" id="scaleableSVGContainer">
+          <div id="popupContainer"> </div>
+        </div>
+        <div class="content-fullwidth" style="background-color:#EEF5FA">
+          <div class="content-constrained">
+
+            <blockquote style="background-color:none;border-left:0.5rem solid #999">
+              <div class="collapse-toggle" data-bs-toggle="collapse" data-bs-target="#carriersCollapse"
+                aria-expanded="false" aria-controls="carriersCollapse">
+                <span class="toggle-icon">+</span> <!-- Icon positioned on the left -->
+                <span style="margin-left:30px;">Mapping dragers - flows
+                </span>
+
+              </div>
+
+              <!-- The collapsible content -->
+              <div class="collapse mt-2" id="carriersCollapse">
+                <div class="card card-body" style="border:none;background-color: #EEF5FA;">
+                  <div style="width:100%;margin-left:35px;">
+                    <p>De 87 energiedragers uit de OPERA-data zijn conform de indeling in onderstaande tabel
+                      samengevoegd tot 20 hoofdcategorieën en geaggregeerd in het diagram weergegeven.</p>
+                    <table style="font-size:12px;">
+                      <thead>
+                        <tr>
+                          <th>Flows diagram</th>
+                          <th>Flows model</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>Ammoniak</td>
+                          <td>Ammonia, Ammonia export, Ammonia import</td>
+                        </tr>
+                        <tr>
+                          <td>Afval</td>
+                          <td>Afval (niet-biogeen)</td>
+                        </tr>
+                        <tr>
+                          <td>Biomassa(producten)</td>
+                          <td>Bio-DME, Bio-ethanol, Bio-LNG for shipping, Bio-LPG, Bio-Methanol for shipping,
+                            Bio-restgassen,
+                            Biobenzine, Biodiesel, Biogas, Biogas voor schaduwprijs, BioHFO, Biokerosine, Biomass
+                            Pyrolysis
+                            Oil,
+                            Biomassa (afval biogeen), Biomassa (AWZ, RWZ en STRT), Biomassa (GFT & VGI), Biomassa (hout
+                            binnenland),
+                            Biomassa (hout buitenland), Biomassa (hout buitenland), expensive part, Biomassa (hout),
+                            Biomassa
+                            (suikers), Biomassa (UCO buitenland), Biomassa (zetmeel), Biomethanol, Bionaphta, E-inhoud
+                            mest,
+                            Overige
+                            bio-olieproducten</td>
+                        </tr>
+                        <tr>
+                          <td>Elektriciteit</td>
+                          <td>Electricity</td>
+                        </tr>
+                        <tr>
+                          <td>Ethyleen</td>
+                          <td>Ethylene</td>
+                        </tr>
+                        <tr>
+                          <td>Geothermie</td>
+                          <td>Aardwarmte</td>
+                        </tr>
+                        <tr>
+                          <td>Kolen(producten)</td>
+                          <td>Cokes, Cokesovengas, Hoogovengas, Kolen</td>
+                        </tr>
+                        <tr>
+                          <td>Methaan</td>
+                          <td>Aardgas, Aardgas feedstock, Gas winning</td>
+                        </tr>
+                        <tr>
+                          <td>Methanol</td>
+                          <td>Methanol, Methanol for shipping, Synthetic methanol, Synthetic methanol for shipping</td>
+                        </tr>
+                        <tr>
+                          <td>Olie(producten)</td>
+                          <td>Benzine, Diesel, HFO, Kerosine, LNG for shipping, LPG, Naphta, Olie, Oliegrondstoffen,
+                            Overige
+                            olieproducten, Restgassen</td>
+                        </tr>
+                        <tr>
+                          <td>Omgevingswarmte</td>
+                          <td>Omgevingswarmte</td>
+                        </tr>
+                        <tr>
+                          <td>Plastic afval</td>
+                          <td>Plastic waste</td>
+                        </tr>
+                        <tr>
+                          <td>Restwarmte</td>
+                          <td>Industrial Waste Heat</td>
+                        </tr>
+                        <tr>
+                          <td>Synthetisch</td>
+                          <td>Synthetic benzine, Synthetic diesel, Synthetic HFO, Synthetic kerosine, Synthetic LNG for
+                            shipping,
+                            Synthetic LPG, Synthetic naphtha, Synthetic waste gasses, Synthetische brandstoffen uit FT,
+                            Other
+                            synthetic oil products</td>
+                        </tr>
+                        <tr>
+                          <td>Uranium</td>
+                          <td>Uranium</td>
+                        </tr>
+                        <tr>
+                          <td>Warmte</td>
+                          <td>Heat100to200, Heat200to400, HeatDir200to400, HeatHT400, Warmte</td>
+                        </tr>
+                        <tr>
+                          <td>Waterstof</td>
+                          <td>Hydrogen import, Waterstof</td>
+                        </tr>
+                        <tr>
+                          <td>Wind</td>
+                          <td>Wind</td>
+                        </tr>
+                        <tr>
+                          <td>Zon</td>
+                          <td>Zon</td>
+                        </tr>
+                        <tr>
+                          <td>Zon thermisch</td>
+                          <td>Zon thermisch</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </blockquote>
+
+            <br>
+            <script>
+              document.addEventListener('DOMContentLoaded', () => {
+                const toggleButtons = document.querySelectorAll('.collapse-toggle');
+
+                toggleButtons.forEach(button => {
+                  button.addEventListener('click', function () {
+                    const icon = this.querySelector('.toggle-icon');
+                    const isExpanded = this.getAttribute('aria-expanded') === 'true';
+
+                    // Toggle between + and -
+                    icon.textContent = isExpanded ? '-' : '+';
+                    icon.setAttribute('data-toggle-state', isExpanded ? '+' : '-');
+                  });
+                });
+              });
+            </script>
+            <blockquote style=" background-color:none;border-left:0.5rem solid #999">
+              <div class="collapse-toggle" data-bs-toggle="collapse" data-bs-target="#remarksCollapse"
+                aria-expanded="false" aria-controls="remarksCollapse">
+                <span class="toggle-icon">+</span> <!-- Icon positioned on the left -->
+                <span style="margin-left:30px;">Mapping opties - nodes</span>
+              </div>
+
+              <!-- The collapsible content -->
+              <div class="collapse mt-2" id="remarksCollapse">
+                <div class="card card-body" style="border:none;background-color: #EEF5FA;">
+                  <p style="margin-left:30px;">De OPERA-opties zijn in het diagram onderverdeeld in vier categorieën
+                    voor energie- en grondstofconversie en zeven sectorale categorieën voor finaal verbruik.</p>
+                  <div id="remarksContainer"></div>
+                </div>
+              </div>
+              <!-- <div class="content-fullwidth" style="background-color:#EEF5FA"> -->
+              <!-- <div class="content-constrained"> -->
+            </blockquote>
+
+          </div>
+        </div>
+
+
       </div>
+      <!-- <div class="full-width-container" style="height:200px;background-color: #EEF5FA;" </div> -->
 
     </div>
-    <div id="energieDragersContainer"> </div>
-    <div id="remarksContainer"></div>
-    <div id="popupContainer"> </div>
 
-
-    <div id="tempCO2Overview"></div>
-
-    <!-- <div id="waccButtons"></div> -->
-
-
-
-
-    <!-- <div id="yearButtons"></div> -->
-
-    <div id="showValueOnHover"></div>
-
-    <div id="toelichting">
-    </div>
-  </div>
+    <!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
 </body>
 
-</html>
+<script src="/js/UIlisteners.js"></script>
+<!-- <script src="/js/viscomponents_lineGraph.js"></script>
+<script src="/js/viscomponents_stackedBarGraph.js"></script>
+<script src="/js/viscomponents_stackedAreaGraph.js"></script> -->
 <script src="js/xlsx.full.min.js"></script>
-<!-- <script src="js/popupGenerator.js"></script> -->
-<script src="//d3js.org/d3.v7.min.js" charset="utf-8"></script>
-<script src="js/drawMainContainer.js" charset="utf-8"></script>
-<script src="js/loadFileDialog.js"></script>
-<script src="js/fileLoadButton.js"></script>
-
-<!-- <script src="js/drawWaterfall.js" charset="utf-8"></script> -->
 <script src="js/d3-collection.v1.min.js"></script>
 <script src="js/d3-sankey-diagram-generic.js"></script>
 <script src="js/genericSankey.js"></script>
+<script src="js/initSankey.js"></script>
+
+
+</html>
