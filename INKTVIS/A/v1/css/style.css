@@ -194,13 +194,14 @@ body {
 }
 
 #popupContainer {
-  position: absolute;
+  position: fixed;
   top: 0px;
-  width: 100%;
+  width: calc(100%-100px);
   height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
+  pointer-events: none;
   z-index: 10000;
   background-color: rgba(0, 0, 0, 0f); /* Keeps background dim when the popup is open */
 }
