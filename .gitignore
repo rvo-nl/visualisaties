@@ -1,4 +1,3 @@
-
 II3050/.DS_Store
 II3050/css/style.css
 II3050/data/.DS_Store
@@ -15,7 +14,7 @@ II3050/js/drawWaterfall.js
 II3050/js/genericSankey.js
 II3050/js/xlsx.full.min.js
 II3050/README.md
-.DS_Store
+*.DS_Store
 TVKN/A/v1/data
 TVKN/A/v2/data
 TVKN/A/v3/data
@@ -23,3 +22,4 @@ RKES/gitexclude
 TVKN/BAK
 TVKN/A/v2
 INKTVIS/A/v2/data
+INKTVIS/A/v3/data
