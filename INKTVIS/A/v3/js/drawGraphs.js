@@ -3,12 +3,12 @@ function drawGraphs(inputData){
 
 
   
-console.log(inputData)
+// console.log(inputData)
 
   
 
   const grafiekdata = transformData(inputData.dataset_grafieken);
-  console.log(grafiekdata)
+  // console.log(grafiekdata)
   // console.log(globalActiveWACC)
   // console.log(grafiekdata.kosten.investeringen[globalActiveWACC.id][globalActiveTax.id][globalActiveTimeUse.id]['OP.CCS.40'])
 

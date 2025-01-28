@@ -22,15 +22,20 @@ function drawStackedAreaGraph(seriesData, divId, options = {}) {
 
   const margin = { top: 60, right: 30, bottom: 70, left: 65 };
 
-  d3.select(`#${divId}`).selectAll("*").remove();
-
   const svg = d3.select(`#${divId}`)
-    .append("svg")
+    .selectAll("svg")
+    .data([null]) // Ensure the SVG element is bound to the container
+    .join("svg") // Reuse or append the SVG element
     .attr("width", containerWidth)
     .attr("height", containerHeight)
     .style("background", "transparent");
 
-  svg.append("rect")
+  // White background with rounded corners
+  svg
+    .selectAll(".background-rect")
+    .data([null])
+    .join("rect")
+    .attr("class", "background-rect")
     .attr("x", padding)
     .attr("y", padding)
     .attr("width", width)
@@ -39,7 +44,10 @@ function drawStackedAreaGraph(seriesData, divId, options = {}) {
     .attr("fill", "white");
 
   const chartArea = svg
-    .append("g")
+    .selectAll(".chart-area")
+    .data([null])
+    .join("g")
+    .attr("class", "chart-area")
     .attr("transform", `translate(${margin.left + padding},${margin.top + padding})`);
 
   const keys = seriesData.map((d) => d.label);
@@ -78,66 +86,45 @@ function drawStackedAreaGraph(seriesData, divId, options = {}) {
     .y0((d) => yScale(d[0]))
     .y1((d) => yScale(d[1]));
 
-  // Tooltip
-  const tooltip = d3.select("body")
-    .append("div")
-    .attr("class", "tooltip")
-    .style("position", "absolute")
-    .style("padding", "8px")
-    .style("background", "rgba(0, 0, 0, 0.7)")
-    .style("color", "#fff")
-    .style("border-radius", "4px")
-    .style("pointer-events", "none")
-    .style("opacity", 0);
-
-  // Append the stacked areas and handle tooltips
+  // Update or create the stacked areas with transitions
   chartArea
     .selectAll(".area")
     .data(stackedData)
-    .enter()
-    .append("path")
+    .join("path")
     .attr("class", "area")
-    .attr("d", area)
     .attr("fill", (d) => colorScale(d.key))
-    .on("mouseover", function (event, layer) {
-      tooltip.style("opacity", 1);
-    })
-    .on("mousemove", function (event, layer) {
-      const [mouseX] = d3.pointer(event);
-      const hoveredXValue = xScale.invert(mouseX);
+    .transition()
+    .duration(750) // Set transition duration
+    .attr("d", area);
 
-      const xIndex = Math.round(hoveredXValue);
-      if (xIndex < xValues[0] || xIndex > xValues[xValues.length - 1]) {
-        tooltip.style("opacity", 0);
-        return;
-      }
-
-      const hoveredPoint = layer.find((d) => d.data.x === xIndex);
-
-      if (hoveredPoint) {
-        tooltip
-          .style("opacity", 1)
-          .html(
-            `<strong>${layer.key}</strong><br>jaar: ${xIndex}<br>waarde: ${(
-              hoveredPoint[1] - hoveredPoint[0]
-            ).toFixed(2)}`
-          )
-          .style("left", `${event.pageX + 10}px`)
-          .style("top", `${event.pageY + 10}px`);
-      }
-    })
-    .on("mouseout", function () {
-      tooltip.style("opacity", 0);
-    });
-
-  // Add axes and labels
-  chartArea.append("g")
+  // Update or create axes with transitions
+  const xAxis = d3.axisBottom(xScale).ticks(xValues.length);
+  chartArea
+    .selectAll(".x-axis")
+    .data([null])
+    .join("g")
+    .attr("class", "x-axis")
     .attr("transform", `translate(0,${height - margin.top - margin.bottom})`)
-    .call(d3.axisBottom(xScale).ticks(xValues.length));
+    .transition()
+    .duration(750) // Animate axis updates
+    .call(xAxis);
 
-  chartArea.append("g").call(d3.axisLeft(yScale).ticks(5));
+  const yAxis = d3.axisLeft(yScale).ticks(5);
+  chartArea
+    .selectAll(".y-axis")
+    .data([null])
+    .join("g")
+    .attr("class", "y-axis")
+    .transition()
+    .duration(750) // Animate axis updates
+    .call(yAxis);
 
-  svg.append("text")
+  // Update or create labels
+  svg
+    .selectAll(".x-axis-label")
+    .data([null])
+    .join("text")
+    .attr("class", "x-axis-label")
     .attr("text-anchor", "middle")
     .attr("x", width / 2 + width / 30)
     .attr("y", containerHeight - padding - 20)
@@ -145,19 +132,27 @@ function drawStackedAreaGraph(seriesData, divId, options = {}) {
     .style("font-size", `${xAxisTitleSize}px`)
     .style("font-weight", 300);
 
-  svg.append("text")
+  svg
+    .selectAll(".y-axis-label")
+    .data([null])
+    .join("text")
+    .attr("class", "y-axis-label")
     .attr("text-anchor", "middle")
+    .attr("transform", `rotate(-90)`)
     .attr(
-      "transform",
-      `rotate(-90)`
+      "x",
+      -(padding + margin.top + (height - margin.top - margin.bottom) / 2)
     )
-    .attr("x", -(padding + margin.top + (height - margin.top - margin.bottom) / 2))
     .attr("y", padding + 30)
     .text(yAxisLabel)
     .style("font-size", `${yAxisTitleSize}px`)
     .style("font-weight", 300);
 
-  svg.append("text")
+  svg
+    .selectAll(".title")
+    .data([null])
+    .join("text")
+    .attr("class", "title")
     .attr("text-anchor", "middle")
     .attr("x", width / 2 + width / 30)
     .attr("y", padding + 30)

@@ -557,11 +557,11 @@ function initSankey (config) {
         })
 
         // Pass the parsed data to your existing callback logic
-        console.log(settings)
+        // console.log(settings)
 
         settings = transformData(settings)
 
-        console.log(settings)
+        // console.log(settings)
 
         if (settings[0].projectID != projectID || settings[0].versionID != versionID || settings[0].productID != productID) {
           console.log('ERROR - ID MISMATCH')
@@ -894,7 +894,7 @@ function initSankey (config) {
       })
     })
 
-    d3.select('.sankey').select('.links').selectAll('.link').attr('id', function (d) {console.log(d)})
+    // d3.select('.sankey').select('.links').selectAll('.link').attr('id', function (d) {console.log(d)})
 
     // draw scenario buttons
     let spacing = 7
@@ -984,8 +984,8 @@ function initSankey (config) {
       // d3.select('#scenariobutton_' + scenario + '_rect').attr('fill', '#333')
       // d3.select('#scenariobutton_' + scenario + '_text').attr('fill', '#fff')
       activeScenario = scenario
-      console.log(globalActiveWACC)
-      console.log(globalActiveScenario.id)
+      // console.log(globalActiveWACC)
+      // console.log(globalActiveScenario.id)
       activeScenario = scenarioIdLookup[globalActiveWACC.id][globalActiveScenario.id][globalActiveYear.id]
       currentScenarioID = activeScenario // neaten
       // console.log(config)
@@ -1054,7 +1054,7 @@ function initSankey (config) {
           // Add 'highlighted' class to the clicked button
           button.classList.add('highlighted')
 
-          console.log('Selected scenario:', scenario)
+          // console.log('Selected scenario:', scenario)
           globalActiveScenario = scenario
           setScenario()
         }
@@ -1111,7 +1111,7 @@ function initSankey (config) {
           // Add 'highlighted' class to the clicked button
           button.classList.add('highlighted')
 
-          console.log('Selected scenario:', waccs)
+          // console.log('Selected scenario:', waccs)
           globalActiveWACC = waccs
           setScenario()
         }
@@ -1167,7 +1167,7 @@ function initSankey (config) {
           // Add 'highlighted' class to the clicked button
           button.classList.add('highlighted')
 
-          console.log('Selected scenario:', tax)
+          // console.log('Selected scenario:', tax)
           globalActiveTax = tax
           setScenario()
         }
@@ -1222,7 +1222,7 @@ function initSankey (config) {
           // Add 'highlighted' class to the clicked button
           button.classList.add('highlighted')
 
-          console.log('Selected scenario:', timeuse)
+          // console.log('Selected scenario:', timeuse)
           globalActiveTimeUse = timeuse
           setScenario()
         }
@@ -1390,7 +1390,7 @@ function initSankey (config) {
     d3.selectAll('.node-click-target').style('fill', '#555').style('stroke-width', 0).attr('width', 10).attr('rx', 0).attr('ry', 0).attr('transform', 'translate(-4,0)scale(1.005)')
     // attach id's to link paths
     d3.select('.sankey').select('.links').selectAll('.link').select('path').attr('data-value', function (d) {return {value: d.value, color: d.color}}).attr('id', function (d, i) { return 'linkindex_' + d.index})
-    // .on('click', function () { drawBarGraph(sankeyData.links[this.id.slice(10)], config) }).style('opacity', 0.9)
+      .on('click', function () { drawBarGraph(sankeyData.links[this.id.slice(10)], config) }).style('opacity', 0.9)
     // attach id's to node rects
     d3.select('.sankey').select('.nodes').selectAll('.node').select('.node-click-target').attr('id', function (d, i) {return 'nodeindex_' + d.index}).on('click', function () { nodeVisualisatieSingular(config, sankeyData.nodes[this.id.slice(10)], sankeyData, config.scenarios, config.targetDIV) })
 
@@ -1698,7 +1698,7 @@ function initSankey (config) {
           return sankeyData.nodes[i].index + 1}) // start counting at 1 instead of zero
     }
 
-    console.log(config.settings)
+    // console.log(config.settings)
     updateSankey(JSON.stringify(sankeyData), config.settings[0].offsetX, config.settings[0].offsetY, config.settings[0].fontSize, config.settings[0].font)
     d3.selectAll('.node-title').style('font-size', '11px')
   }
@@ -1785,9 +1785,9 @@ function initSankey (config) {
 }
 
 function drawBarGraph (data, config) {
-  console.log(config, data)
+  // console.log(data)
 
-  // Show popup blinder with transition
+  // 1) Show popup & container
   d3.select('#popupBlinder')
     .style('visibility', 'visible')
     .style('opacity', 0)
@@ -1795,13 +1795,12 @@ function drawBarGraph (data, config) {
     .style('opacity', 0.3)
     .style('pointer-events', 'auto')
 
-  // Create and style the main popup container
-  const popup = d3.select(`#scaleableSVGContainer`)
+  const popup = d3.select(`#${config.targetDIV}`)
     .append('div')
     .attr('id', 'nodeInfoPopup')
     .style('pointer-events', 'none')
     .style('position', 'absolute')
-    .style('top', '470px')
+    .style('top', '0px')
     .style('left', '0px')
     .style('width', '100%')
     .style('height', '100%')
@@ -1811,51 +1810,38 @@ function drawBarGraph (data, config) {
     .append('div')
     .style('pointer-events', 'auto')
     .attr('id', 'flowAnalysisPopup')
+    .style('top', '800px')
     .style('position', 'absolute')
     .style('box-shadow', '10px 20px 69px -15px rgba(0,0,0,0.75)')
-    // .style('margin', 'auto')
     .style('width', '1000px')
-    .style('height', '500px')
+    .style('height', '600px')
     .style('background-color', 'rgba(255,255,255,1)')
 
-  // Create and style the main SVG container
   const svg = popup.append('svg')
+    .attr('id', 'flowAnalysisSVG_main')
     .style('position', 'absolute')
     .style('width', '100%')
     .style('height', '100%')
-    .attr('id', 'flowAnalysisSVG_main')
 
   const canvas = svg.append('g')
 
-  // Add title text
-  const sourceNode = nodesGlobal.find(item => item.id === data.source)
-  const targetNode = nodesGlobal.find(item => item.id === data.target)
+  // 2) Title (optional)
+  let sourceTitle = data.source || 'Unknown Source'
+  let targetTitle = data.target || 'Unknown Target'
   canvas.append('text')
-    .attr('x', 245)
-    .attr('y', 50)
+    .attr('x', 50)
+    .attr('y', 40)
     .style('font-size', '16px')
     .style('font-weight', 500)
-    .text(`Flow '${sourceNode.title} - ${targetNode.title}'`)
+    .text(`Flow '${sourceTitle} - ${targetTitle}'`)
 
-  // Add path and rectangle elements to the canvas
-  canvas.append('path')
-    .attr('d', 'M94.333 812.333 40 772.667 232 466l119.714 140 159.619-258.666 109 162.333q-18.333 1.667-35.166 6.167-16.834 4.5-33.5 11.166l-37.334-57-152.371 248.333-121.296-141-146.333 235ZM872.334 1016 741.333 885q-20.666 14.667-45.166 22.333-24.5 7.667-50.5 7.667-72.222 0-122.778-50.578-50.555-50.579-50.555-122.834t50.578-122.754q50.578-50.5 122.833-50.5T768.5 618.889Q819 669.445 819 741.667q0 26-8 50.5t-22 46.465l131 129.702L872.334 1016ZM645.573 848.334q44.76 0 75.761-30.907 31-30.906 31-75.666 0-44.761-30.907-75.761-30.906-31-75.666-31Q601 635 570 665.906q-31 30.906-31 75.667 0 44.76 30.906 75.761 30.906 31 75.667 31ZM724.666 523q-16.333-6.667-33.833-9.666-17.5-3-36.166-4.667l211-332.667L920 215.666 724.666 523Z')
-    .attr('transform', 'translate(190,27)scale(0.030)')
-    .style('fill', '#666')
-
-  canvas.append('rect')
-    .attr('x', 30)
-    .attr('y', 60)
-    .attr('width', 940)
-    .attr('height', 410)
-    .attr('fill', '#fff')
-
-  // Add close button with interactions
+  // 3) Close Button
+  const closeButtonSize = 30
   const closeButton = canvas.append('rect')
-    .attr('x', 955)
+    .attr('x', 950)
     .attr('y', 15)
-    .attr('width', 30)
-    .attr('height', 30)
+    .attr('width', closeButtonSize)
+    .attr('height', closeButtonSize)
     .attr('fill', '#FFF')
     .style('pointer-events', 'auto')
     .on('mouseover', () => d3.select(closeButton.node()).attr('fill', '#999'))
@@ -1869,159 +1855,183 @@ function drawBarGraph (data, config) {
 
   canvas.append('path')
     .style('pointer-events', 'none')
-    .attr('id', `${config.targetDIV}_closeButton`)
     .attr('d', 'm249 849-42-42 231-231-231-231 42-42 231 231 231-231 42 42-231 231 231 231-42 42-231-231-231 231Z')
-    .attr('transform', 'translate(951,7)scale(0.04)')
+    .attr('transform', `translate(${950}, 7) scale(0.04)`)
 
-  // Add scenario demarcation rectangles
-  const demarcations = [
-    // { width: 90, height: 40, x: 144, y: 85, fill: '#888' },
-    { width: 105, height: 40, x: 244, y: 85 + 35, fill: '#999' },
-    { width: 105, height: 40, x: 359, y: 85 + 35, fill: '#999' },
-    { width: 105, height: 40, x: 474, y: 85 + 35, fill: '#999' },
-    { width: 105, height: 40, x: 589, y: 85 + 35, fill: '#999' },
-    { width: 105, height: 40, x: 704, y: 85 + 35, fill: '#999' },
-    { width: 105, height: 40, x: 819, y: 85 + 35, fill: '#999' }
+  // 4) Extract scenario data
+  const scenarioKeys = Object.keys(data).filter(k => k.startsWith('scenario'))
 
-  ]
-
-  demarcations.forEach(d => {
-    canvas.append('rect')
-      .attr('width', d.width)
-      .attr('height', d.height)
-      .attr('x', d.x)
-      .attr('y', d.y)
-      .attr('fill', d.fill)
-  })
-
-  // Add vertical rectangles representing scenario groups
-  var rectsData = [
-    { width: 105, height: 270, x: 244, y: 130 + 40, fill: '#eee', text: 'OP.CCS.40' },
-    { width: 105, height: 270, x: 359, y: 130 + 40, fill: '#eee', text: 'Opt.Sel.FCP' },
-    { width: 105, height: 270, x: 474, y: 130 + 40, fill: '#eee', text: 'PP.CCS.30' },
-    { width: 105, height: 270, x: 589, y: 130 + 40, fill: '#eee', text: 'OP.CCS.40' },
-    { width: 105, height: 270, x: 704, y: 130 + 40, fill: '#eee', text: 'Opt.Sel.FCP' },
-    { width: 105, height: 270, x: 819, y: 130 + 40, fill: '#eee', text: 'PP.CCS.30' }
-  ]
-
-  rectsData.forEach(d => {
-    canvas.append('rect')
-      .attr('width', d.width)
-      .attr('height', d.height)
-      .attr('x', d.x)
-      .attr('y', d.y)
-      .attr('fill', d.fill)
-    canvas.append('text')
-      .attr('x', d.x + 10)
-      .attr('y', d.y - 20 - 5)
-      .style('font-weight', 600)
-      .attr('fill', 'white')
-      .style('font-size', '15px')
-      .text(d.text)
-  })
-
-  rectsData = [
-    { width: 335, height: 3, x: 244, y: 80 - 10 + 35,  fill: '#999', text: 'WACC 2.25%' },
-    { width: 335, height: 3, x: 600 - 11, y: 80 - 10 + 35,  fill: '#999', text: 'WACC 4% - 8%' }
-  ]
-
-  rectsData.forEach(d => {
-    canvas.append('rect')
-      .attr('width', d.width)
-      .attr('height', d.height)
-      .attr('x', d.x)
-      .attr('y', d.y)
-      .attr('fill', d.fill)
-    canvas.append('text')
-      .attr('x', d.x)
-      .attr('y', d.y - 20 + 10)
-      .attr('fill', '#777')
-      .style('font-weight', 500)
-      .style('font-size', '15px')
-      .text(d.text)
-  })
-
-  // Chart dimensions and scales
-  const margin = { top: 10, right: 30, bottom: 30, left: 60 }
-  const height = 180
-  const shiftX = 100
-  let shiftXAdditional = 144
-  const spacing = 40
-  const width = 450
-
-  const scenarios = Object.entries(data).filter(([key]) => key.includes('scenario'))
-  const x = d3.scaleBand()
-    .range([0, width])
-    .domain(scenarios.map(([key]) => key.substring(0, key.indexOf('_'))))
-    .padding(0.1)
-
-  const y = d3.scaleLinear()
-    .range([height, 0])
-    .domain([0, d3.max(scenarios, ([, value]) => value)])
-
-  // Add y-axis gridlines and limit tick marks to 5
-  canvas.append('g')
-    .call(d3.axisLeft(y).ticks(10).tickSize(-width - 250).tickFormat(''))
-    .attr('transform', `translate(${shiftX+shiftXAdditional-10}, 190)`) // Y POSITION
-    .selectAll('.tick line')
-    .style('stroke', '#999')
-    .style('stroke-width', 1)
-    .style('opacity', 0.8)
-    .style('stroke-dasharray', '8,4')
-  // Draw bars
-  canvas.selectAll('.bar')
-    .data(scenarios)
-    .enter().append('rect')
-    .attr('class', 'bar')
-    .attr('fill', d => config.legend.find(item => item.id === data.legend).color)
-    .attr('x', d => x(d[0].substring(0, d[0].indexOf('_'))))
-    .attr('y', d => y(d[1]))
-    .attr('width', x.bandwidth())
-    .attr('height', d => height - y(d[1]))
-    .attr('transform', (d, i) => {
-      if ([5, 10, 15, 20, 25].includes(i)) {shiftXAdditional += spacing}
-      return `translate(${shiftX + shiftXAdditional+14},190)` // Y POSITION
+  // Optionally, if you have config.scenarios, build a lookup
+  const scenarioConfigMap = {}
+  if (Array.isArray(config.scenarios)) {
+    config.scenarios.forEach(scen => {
+      scenarioConfigMap[scen.id] = scen
     })
-
-  // Add x-axis labels
-  const varianten = ['2030', '2035', '2040', '2045', '2050', '2030', '2035', '2040', '2045', '2050', '2030', '2035', '2040', '2045', '2050', '2030', '2035', '2040', '2045', '2050', '2030', '2035', '2040', '2045', '2050', '2030', '2035', '2040', '2045', '2050']
-  const posy = height + 165 + 40 // Y POSITION
-  shiftXAdditional = 96
-
-  scenarios.forEach((d, j) => {
-    if ([5, 10, 15, 20, 25].includes(j)) shiftXAdditional += spacing - 3.5
-    const posx = shiftX + shiftXAdditional + j * (15.50) + 75
-    canvas.append('text')
-      .style('text-anchor', 'end')
-      .style('font-size', '12px')
-      .attr('transform', `translate(${posx},${posy})rotate(-90)`)
-      .text(varianten[j])
-  })
-
-  // Add y-axis with label
-  const formatMillions = (d) => {
-    const scaled = d / 1e6 // Scale the number to millions
-    return new Intl.NumberFormat('de-DE', { maximumFractionDigits: 0 }).format(scaled); // Format with '.' as thousands separator
   }
 
-  canvas.append('g')
-    .call(d3.axisLeft(y).tickFormat(formatMillions))
-    .attr('transform', `translate(${shiftX+ 130}, 190 )`) // Y POSITION
-    .selectAll('text')
-    .style('font-weight', 500)
-    .style('font-size', '13px')
+  // Build an array of scenario info
+  let scenarioData = scenarioKeys.map(sKey => {
+    const scenarioObj = scenarioConfigMap[sKey] || {}
+    const fullTitle = scenarioObj.title || sKey
+    return {
+      key: sKey,
+      value: +data[sKey],
+      title: fullTitle
+    }
+  })
 
-  canvas.append('text')
-    .attr('transform', 'translate(140,270)rotate(-90)') // Y POSITION
-    .attr('dy', '1em')
-    .style('font-size', '15px')
+  // Sort by numeric index
+  scenarioData.sort((a, b) => {
+    const idxA = +a.key.replace(/\D+/g, '')
+    const idxB = +b.key.replace(/\D+/g, '')
+    return d3.ascending(idxA, idxB)
+  })
+
+  // 5) Chunk the data in groups of 5
+  const groupSize = 5
+  const groupedData = []
+  for (let i = 0; i < scenarioData.length; i += groupSize) {
+    groupedData.push(scenarioData.slice(i, i + groupSize))
+  }
+
+  // 6) Create chart area
+  const margin = { top: 80, right: 30, bottom: 60, left: 80 }
+  const chartWidth = 900
+  const chartHeight = 350
+
+  const chartG = canvas.append('g')
+    .attr('transform', `translate(${margin.left}, ${margin.top})`)
+
+  // 7) Define Y scale (BOTTOM-ALIGNED)
+  // 0 => 0 px, maxVal => chartHeight px
+  // we invert the usage in rect drawing so bars sit at the bottom
+  const maxVal = d3.max(scenarioData, d => d.value)
+  const y = d3.scaleLinear()
+    .domain([0, maxVal])
+    .range([0, chartHeight])
+
+  // 8) Define the outer X scale
+  const xGroup = d3.scaleBand()
+    .domain(d3.range(groupedData.length))
+    .range([0, chartWidth])
+    .padding(0.2) // space between groups
+
+  // 9) Define the inner X scale
+  const xInner = d3.scaleBand()
+    .domain(d3.range(groupSize))
+    .range([0, xGroup.bandwidth()])
+    .padding(0.1)
+
+  // 10) Draw background if desired
+  chartG.append('rect')
+    .attr('width', chartWidth)
+    .attr('height', chartHeight)
+    .attr('fill', '#fff')
+    .attr('stroke', '#ccc')
+
+  // We can still draw horizontal grid lines if you want:
+  // (But if you don't want them, you can omit this)
+  chartG.append('g')
+    .call(
+      d3.axisLeft(d3.scaleLinear()
+        .domain([maxVal, 0]) // reversed, so 0 is at bottom
+        .range([0, chartHeight])
+      )
+        .ticks(5)
+        .tickSize(-chartWidth)
+        .tickFormat('')
+  )
+    .selectAll('.domain').remove()
+
+  // 11) Bar color
+  let barColor = '#888'
+  if (data.legend && Array.isArray(config.legend)) {
+    const legendItem = config.legend.find(item => item.id === data.legend)
+    if (legendItem) {
+      barColor = legendItem.color
+    }
+  }
+
+  // 12) Draw bars (bottom-aligned)
+  chartG.selectAll('.groupG')
+    .data(groupedData)
+    .enter()
+    .append('g')
+    .attr('class', 'groupG')
+    .attr('transform', (groupData, groupIndex) => `translate(${xGroup(groupIndex)}, 0)`)
+    .selectAll('rect')
+    .data(d => d)
+    .enter()
+    .append('rect')
+    .attr('x', (scenario, indexInGroup) => xInner(indexInGroup))
+    // Position from the bottom => chartHeight - barHeight
+    .attr('y', scenario => chartHeight - y(scenario.value))
+    .attr('width', xInner.bandwidth())
+    .attr('height', scenario => y(scenario.value))
+    .attr('fill', barColor)
+
+  // 13) Y axis (optional to keep; you can remove if you want no axes at all)
+  chartG.append('g')
+    // Show tick labels for the left axis, if desired
+    .call(
+      d3.axisLeft(
+        d3.scaleLinear().domain([0, maxVal]).range([chartHeight, 0])
+      )
+        .tickFormat(formatMillions)
+        .ticks(5)
+  )
+    .selectAll('.domain').attr('stroke', '#777')
+
+  // If you'd like a Y-label:
+  chartG.append('text')
+    .attr('transform', 'rotate(-90)')
+    .attr('y', -margin.left + 15)
+    .attr('x', -chartHeight / 2)
     .style('text-anchor', 'middle')
-    .style('fill', '#777')
-    .style('font-weight', 500)
-    .text('Kosten (€ miljoen)')
+    .style('font-size', '14px')
+    .style('fill', '#555')
+    .text('Costs (€ million)')
 
-  d3.selectAll('.domain').remove() // remove domain lines ()
+  // **Step to dynamically generate group labels and rectangles**
+  chartG.selectAll('.groupLabel')
+    .data(groupedData) // Use the groupedData array, which already contains the group structure
+    .enter()
+    .append('g')
+    .attr('class', 'groupLabel')
+    .attr('transform', (groupData, groupIndex) => `translate(${xGroup(groupIndex)}, -40)`) // Position rectangles above groups
+    .each(function (groupData, groupIndex) {
+      const groupG = d3.select(this)
 
+      // Add rectangle above the group
+      groupG.append('rect')
+        .attr('x', 0)
+        .attr('y', chartHeight + 60)
+        .attr('width', xGroup.bandwidth())
+        .attr('height', 30)
+        .attr('fill', '#ddd')
+        .attr('stroke', '#bbb')
+
+      // Add text on top of the rectangle
+      const groupTitles = ['PR40', 'SR20', 'PB30', 'PR40', 'SR20', 'PB30', 'PR40', 'SR20', 'PB30']
+      groupG.append('text')
+        .attr('x', xGroup.bandwidth() / 2) // Center text within the group rectangle
+        .attr('y', chartHeight + 80) // Vertical positioning within the rectangle
+        .attr('text-anchor', 'middle')
+        .style('font-size', '14px')
+        .style('fill', '#555')
+        .text(groupTitles[groupIndex]); // Dynamically assign text, e.g., "Group 1", "Group 2", etc.
+    })
+
+  // 14) Remove X-axis entirely => do NOT append a bottom axis
+    // (If you had code that appended an X-axis, remove or comment it out)
+
+  // Helper for formatting large numbers in millions
+  function formatMillions (d) {
+    const scaled = d / 1e6
+    return new Intl.NumberFormat('de-DE', {
+      maximumFractionDigits: 0
+    }).format(scaled)
+  }
 }
 
 let currentScenarioID = 0
@@ -2052,7 +2062,7 @@ function wrap (text, width) {
 }
 
 function drawRemarks () {
-  console.log(sankeyData.nodes)
+  // console.log(sankeyData.nodes)
   d3.select('#remarksContainer').html('') // EDIT TIJS - add
   for (i = 0;i < sankeyData.nodes.length;i++) {
     // console.log(sankeyData.nodes[i])
