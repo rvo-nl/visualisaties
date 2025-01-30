@@ -1,0 +1,430 @@
+body {
+  /* background-color: #E2D2C6; */
+  background-color: #E8F0F4;
+  background-color: #CCC;
+  margin: 0;
+  margin-top: 40px;
+  /* margin-top: 50px; */
+  display: flex;
+  justify-content: center;
+  /* Center the container horizontally */
+  align-items: start;
+  /* Align the container at the top of the viewport */
+  min-height: 100vh;
+  margin-bottom: 50px;
+  /* Creates a tiny dot (radius ~1px) that transitions to transparent */
+  /* background-image: radial-gradient(#aaa 0.5px, transparent 0.5px); */
+
+  /* Repeat this tiny gradient across the container */
+  /* background-repeat: repeat; */
+
+  /* Controls the spacing between dots */
+  /* background-size: 8px 8px; */
+}
+
+#main-container {
+  margin: 0 50px;
+  width: calc(100% - 100px);
+  background-color: #FFF;
+  padding: 0;
+  box-sizing: border-box;
+  min-width: 768px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  /* Optional: Add shadow for aesthetics */
+}
+
+.fixed-width-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.full-width-container {
+
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+
+.container {
+  margin: 0;
+  padding: 0px;
+  width: 100%;
+}
+
+.content-fullwidth {
+  width: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+  /* background-color: E8F0F4; */
+}
+
+.content-constrained {
+  min-width: 768px;
+  max-width: 1024px;
+  /* Constrain the content to a fixed width */
+  margin: 0 auto;
+  /* Center the content horizontally */
+  padding: 50px;
+  box-sizing: border-box;
+  /* background-color: #E8F0F4; */
+  /* Same background color for consistency */
+}
+
+.sticky {
+  position: sticky;
+  /* Enables sticky behavior */
+  top: 0;
+  /* Sticks to the top of the viewport */
+  z-index: 1000;
+  /* Ensures it appears above other content */
+  /* background-color: #EEF5FA; */
+  background-color: #FFF;
+  /* Optional: Sticky background color */
+}
+
+.flexcontainer {
+  display: flex;
+  width: 100%;
+}
+
+.flexbox {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 16px;
+}
+
+#scaleableSVGContainer {
+  width: 100%;
+  height: 1200px;
+  background-color: #EEF5FA;
+  /* Creates a tiny dot (radius ~1px) that transitions to transparent */
+  /* background-image: radial-gradient(#ccc 0.5px, transparent 0.5px);
+
+  /* Repeat this tiny gradient across the container */
+  background-repeat: repeat;
+
+  /* Controls the spacing between dots */
+  background-size: 8px 8px;
+
+}
+
+
+
+
+
+.menuContainer {
+  display: grid;
+  /* Create two columns and auto-generate rows */
+  grid-template-columns: auto auto;
+  grid-auto-rows: auto;
+
+  /* Spacing between the grid cells */
+  /* gap: 1rem; */
+  /* Optional styling */
+  /* padding: 1rem; */
+  /* border: 1px solid #ccc; */
+}
+
+.menuContainer-part {
+  /* Optional styling */
+  /* border: 1px solid #999; */
+  padding-left: 20px;
+}
+
+.highlighted {
+  background-color: #555 !important;
+  /* Blue background for highlight */
+  color: white !important;
+  /* White text for better contrast */
+  border-color: none;
+}
+
+/* A full-width "rectangle" that acts as a toggle */
+.collapse-toggle {
+  width: 100%;
+  cursor: pointer;
+  /* background-color: #FFF; */
+  /* Default background color */
+  padding: 1rem;
+  display: flex;
+  justify-content: flex-start;
+  /* Align items to the left */
+  align-items: center;
+  /* border: 1px solid #ccc; */
+  border-radius: 4px;
+  user-select: none;
+  height: 60px;
+  transition: background-color 0.2s ease;
+  gap: 10px;
+  /* Adds spacing between the icon and text */
+}
+
+/* Hover effect: subtle "light up" */
+.collapse-toggle:hover {
+  /* border: 2px solid #ccc; */
+  font-weight: 400;
+}
+
+
+/* The circle icon on the left */
+/* The circle icon on the left */
+.toggle-icon {
+  margin-left: -48px;
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  background-color: #333;
+  color: #fff;
+  font-size: 24px;
+  transition: transform 0.3s ease, background-color 0.2s ease;
+}
+
+/* Grow the icon slightly when hovered */
+.toggle-icon:hover {
+  transform: scale(1.2);
+  /* Slightly enlarge the icon */
+}
+
+/* Change background and text when expanded */
+[data-bs-toggle="collapse"][aria-expanded="true"] .toggle-icon {
+  /* background-color: #007bff; */
+  /* color: #fff; */
+}
+
+#remarksContainer {
+  /* position: relative; */
+  /* position: absolute; */
+  /* top:100px; */
+  /* margin-top: 0px; */
+  /* margin-top: 50px; */
+  /* padding-bottom: 200px; */
+  /* background-color: red; */
+  /* margin-left: 100px; */
+  /* margin-right: 200px; */
+  /* max-width: 1200px; */
+  font-size: 12px;
+  pointer-events: all;
+  z-index: 100
+}
+
+#downloadUploadFile{
+margin-top:40px;
+margin-left: 50px;
+font-size: 14px;
+font-weight:500;
+}
+
+/* 
+      A simple keyframe animation that slides the label down from above the viewport.
+      Feel free to adjust the duration (0.5s), easing, etc.
+    */
+@keyframes slideDown {
+  0% {
+    transform: translateY(-200%);
+  }
+
+  100% {
+    transform: translateY(0);
+  }
+}
+
+/* 
+      The label itself:
+      - fixed at the top center
+      - bottom-left and bottom-right corners rounded
+      - bright background and white text
+      - some padding and shadow
+      - the slideDown animation is triggered once
+    */
+.concept-label {
+  /* or absolute, depending on your layout needs */
+  /* position: absolute; */
+  top: 0;
+  margin-right: 50px;
+  right: 20px;
+  width: 78px;
+  height: 60px;
+
+  background-color: #999;
+  color: #fff;
+  font-family: sans-serif;
+  font-weight: 700;
+  font-size: 1.2rem;
+
+
+  /* Round bottom corners */
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 0px;
+
+  z-index: 9999;
+  /* Keep it above other elements */
+  animation: slideDown 1s ease-out forwards;
+
+  /* Flex container to position text at bottom center */
+  display: flex;
+  align-items: flex-end;
+  /* push child content to bottom */
+  justify-content: center;
+  /* horizontally center child content */
+
+  /* Optional padding at the bottom */
+  padding-bottom: 1rem;
+  /* border: 1px solid #ccc; */
+  /* border: 2px dashed #666; */
+
+}
+
+.version-label {
+  /* or absolute, depending on your layout needs */
+  /* position: absolute; */
+  top: 0;
+  margin-left: 20px;
+  right: 20px;
+  width: 110px;
+  height: 30px;
+
+  background-color: #999;
+  color: #FFF;
+  font-family: sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+
+  /* Round bottom corners */
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 0px;
+
+  z-index: 9999;
+  /* Keep it above other elements */
+  animation: slideDown 1s ease-out forwards;
+
+  /* Flex container to position text at bottom center */
+  display: flex;
+  align-items: flex-end;
+  /* push child content to bottom */
+  justify-content: center;
+  /* horizontally center child content */
+
+  /* Optional padding at the bottom */
+  padding-bottom: 0.5rem;
+
+}
+
+#liner {
+  position: absolute;
+  top: 0px;
+  width: 100%;
+  height: 40px;
+  background-color: #CCC;
+  z-index: 1000;
+}
+
+
+#popupContainer {
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  background-color: rgba(0, 0, 0, 0f);
+  pointer-events: none;
+  /* Keeps background dim when the popup is open */
+}
+
+#popup {
+  position: relative;
+  /* Ensures child elements are positioned relative to this div */
+  width: 60%;
+  /* Adjusted width for better responsiveness */
+  max-height: 90vh;
+  /* Ensures the popup's height does not exceed 90% of the viewport height */
+  background-color: rgba(255, 255, 255, 0.95);
+  color: black;
+  padding: 30px;
+  border-radius: 10px;
+  text-align: left;
+  /* Aligns text to the left for a better list display */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  padding-right: 120px;
+  gap: 20px;
+  font-size: 14px;
+  overflow-y: auto;
+  /* Adds vertical scrolling if the content exceeds the height */
+  overflow-x: hidden;
+  pointer-events: all;
+}
+
+#loadFileDialog {
+  pointer-events: none;
+  visibility: visible;
+  width: 100%;
+  height: 100%;
+  background-color: #E8F0F4;
+  z-index: 10000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  font-size: 14px;
+  line-height: 25px;
+
+  padding-left: 100px;
+  padding-top: 100px;
+
+}
+
+#showValueOnHover {
+  opacity: 0;
+  position: fixed;
+  bottom: 0;
+  left: 50px;
+  margin: 50px;
+  /* Optional: Adds some spacing from the screen edges */
+  padding: 5px 10px;
+  /* Optional: Adds some internal spacing for better appearance */
+  background-color: rgba(0, 0, 0, 0.7);
+  /* Optional: Background color with transparency */
+  color: white;
+  /* Optional: Text color */
+  border-radius: 5px;
+  /* Optional: Rounded corners */
+  font-size: 16px;
+  /* Optional: Adjust text size */
+  z-index: 30000;
+  max-width: calc(100% - 20px);
+  /* Prevents overflow if the text is too wide */
+  word-wrap: break-word;
+  /* Ensures text doesn't overflow the box */
+}
+
+#unitSelector {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  /* right: 50px; */
+  top: 80px;
+  float: right;
+}
+
+
+  .label-container {
+    display: flex;
+    align-items: center;
+    gap: 40px; /* Adjust spacing between the icon and text */
+    margin-bottom: 10px;
+    margin-left:20px;
+  }
+
