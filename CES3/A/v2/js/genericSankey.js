@@ -463,7 +463,7 @@ function initSankey (config) {
       const fileUrl = 'data/CES3Overview_a_v2_06122024.xlsx' // Replace with your file URL
       const anchor = document.createElement('a')
       anchor.href = fileUrl
-      anchor.download = 'CES3Overview_a_v1_06122024.xlsx' // Replace with the desired filename
+      anchor.download = 'CES3Overview_a_v2_06122024.xlsx' // Replace with the desired filename
       document.body.appendChild(anchor)
       anchor.click()
       document.body.removeChild(anchor)
