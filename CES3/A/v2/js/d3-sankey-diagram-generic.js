@@ -20792,20 +20792,17 @@
           }
         });
       
-      backdropValue //EDIT TIJS add
+        backdropValue //EDIT TIJS add
         .attr('width', function (d) {
-          if (currentUnit == 'PJ'){return getTextWidth(d.value + ' PJ', '11px', 'Roboto')+10}
+          if ((d.incoming[0]?.legend === 'co2flow') || (d.outgoing[0]?.legend === 'co2flow')) {
+            return getTextWidth(d.value + ' kton CO2', '10px', 'Roboto')+20
+          } else{
+          if (currentUnit == 'PJ'){return getTextWidth(d.value + ' PJ', '10px', 'Roboto')+10}
           else return getTextWidth(d.value + ' TWh', '11px', 'Roboto')+10
+        }
         }) // EDIT TIJS add TODO: make font-family dynamic
-        .style('visibility', function (d) {
-          if (d.title === ".") {
-            return 'hidden';
-          } else if (d.value > 0) {
-            return 'visible';
-          } else {
-            return 'hidden';
-          }
-        })
+        .style('visibility', function (d) { if (d.value > 0) {return 'visible'} else return 'hidden'})
+          
 
       // backdropRemarks //EDIT TIJS add
       //     .attr('width', function (d) {

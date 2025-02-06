@@ -460,7 +460,7 @@ function initSankey (config) {
     downloadButton.classList.add('button-outline')
     downloadButton.style.marginLeft = '20px' // Add spacing to the rig
     downloadButton.addEventListener('click', () => {
-      const fileUrl = 'data/CES3Overview_a_v1_06122024.xlsx' // Replace with your file URL
+      const fileUrl = 'data/CES3Overview_a_v2_06122024.xlsx' // Replace with your file URL
       const anchor = document.createElement('a')
       anchor.href = fileUrl
       anchor.download = 'CES3Overview_a_v1_06122024.xlsx' // Replace with the desired filename
