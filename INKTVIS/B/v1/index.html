@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>D3 Treemap with Tooltip & Custom Prefix/Postfix</title>
+  <script src="js/d3.v6.min.js"></script>
+  <script src="js/html2canvas.min.js"></script>
+  <!-- Include the XLSX library -->
+  <script src="js/xlsx.full.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      box-sizing: border-box;
+      background-color: #f9f9f9;
+    }
+
+    h2 {
+      margin-bottom: 10px;
+    }
+
+    .form-section {
+      background-color: #fff;
+      padding: 15px 20px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-width: 600px;
+    }
+
+    .form-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    #drawBtn {
+      align-self: flex-start;
+      padding: 8px 16px;
+      font-size: 14px;
+      background-color: #007acc;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    #drawBtn:hover {
+      background-color: #005ea1;
+    }
+
+    #diagram-export-wrapper {
+      background-color: white;
+      padding: 10px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      height: 100%;
+    }
+
+    #diagram-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    #diagram-title {
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    #diagram-format {
+      font-size: 14px;
+      font-weight: bold;
+      background-color: rgba(255, 255, 255, 0.7);
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+
+    #treemap-container {
+      position: relative;
+      width: 100%;
+      height: 80vh;
+      border: 1px solid #ccc;
+      overflow: hidden;
+      background: white;
+      border-radius: 4px;
+      transition: height 0.3s ease;
+    }
+
+    #legend-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+    }
+
+    .legend-color {
+      width: 16px;
+      height: 16px;
+      margin-right: 6px;
+      border: 1px solid #ccc;
+      border-radius: 2px;
+    }
+
+    #export-container {
+      margin-top: 20px;
+    }
+
+    #exportBtn {
+      padding: 8px 16px;
+      font-size: 14px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    #exportBtn:hover {
+      background-color: #1f7c34;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* Tooltip styling */
+    .tooltip {
+      position: absolute;
+      pointer-events: none;
+      background: #333;
+      color: #fff;
+      padding: 5px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      opacity: 0;
+      /* hidden by default */
+      transition: opacity 0.2s;
+    }
+  </style>
+</head>
+
+<body>
+
+
+  <!-- Form Section -->
+  <div class="form-section" id="title-container">
+    <h2>Treemap</h2>
+
+
+    <div class="form-row">
+      <label for="fileInput">Upload data (XLSX):</label>
+      <input type="file" id="fileInput" accept=".xlsx" />
+    </div>
+    <div class="form-row">
+      <label for="titleInput">Titel:</label>
+      <input type="text" id="titleInput" placeholder="..." style="flex: 1;" />
+    </div>
+
+    <div class="form-row">
+      <label for="displayFormatSelect">Schaalfactor:</label>
+      <select id="displayFormatSelect">
+        <option value="1" selected>1</option>
+        <option value="1000">duizend (kilo)</option>
+        <option value="1000000">miljoen (mega)</option>
+        <option value="1000000000">miljard (giga)</option>
+        <option value="1000000000000">biljoen (tera)</option>
+        <option value="1000000000000">biljard (peta)</option>
+        <option value="1000000000000">triljoen (exa)</option>
+        <option value="1000000000000">triljard (zeta)</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <label for="formatTextInput">Tekst rechts bovenin:</label>
+      <input type="text" id="formatTextInput" style="flex: 1;" />
+    </div>
+
+    <!-- Prefix/Postfix inputs -->
+    <div class="form-row">
+      <label for="prefixInput">Value prefix:</label>
+      <input type="text" id="prefixInput" placeholder="Bijv. € " style="flex: 1;" />
+    </div>
+    <div class="form-row">
+      <label for="postfixInput">Value postfix:</label>
+      <input type="text" id="postfixInput" placeholder="Bijv. /jr" style="flex: 1;" />
+    </div>
+
+
+
+    <button id="drawBtn">Teken Diagram</button>
+  </div>
+
+  <!-- Diagram Display & Export Section -->
+  <div id="diagram-export-wrapper" class="hidden">
+    <div id="diagram-header">
+      <div id="diagram-title"></div>
+      <div id="diagram-format"></div>
+    </div>
+
+    <div id="treemap-container"></div>
+    <div id="legend-container"></div>
+  </div>
+
+  <div id="export-container" class="hidden">
+    <button id="exportBtn">Export afbeelding</button>
+  </div>
+
+  <!-- Tooltip element -->
+  <div class="tooltip" id="tooltip"></div>
+
+  <script>
+    // D3 containers and elements
+    const container = d3.select("#treemap-container");
+    const legendContainer = d3.select("#legend-container");
+    const tooltip = d3.select("#tooltip");
+
+    // Treemap layout
+    const color = d3.scaleOrdinal(d3.schemeCategory10);
+    const treemapLayout = d3.treemap().paddingInner(2);
+
+    // Form elements
+    const titleInput = document.getElementById('titleInput');
+    const drawBtn = document.getElementById('drawBtn');
+    const fileInput = document.getElementById('fileInput');
+    const displayFormatSelect = document.getElementById('displayFormatSelect');
+    const formatTextInput = document.getElementById('formatTextInput');
+    const prefixInput = document.getElementById('prefixInput');
+    const postfixInput = document.getElementById('postfixInput');
+
+    // Diagram elements
+    const diagramTitle = document.getElementById('diagram-title');
+    const diagramFormat = document.getElementById('diagram-format');
+    const treemapContainer = document.getElementById('treemap-container');
+    const exportWrapper = document.getElementById('diagram-export-wrapper');
+    const exportContainer = document.getElementById('export-container');
+    const exportBtn = document.getElementById('exportBtn');
+
+    // Global variables
+    let rawData = null;
+    let rootData = null;
+    let displayFormatDivider = parseInt(displayFormatSelect.value, 10);
+
+    // For the top-right label text
+    const formatLabels = {
+      1: "€",
+      1000: "€ duizend",
+      1000000: "€ miljoen",
+      1000000000: "€ miljard"
+    };
+
+    // Event listeners
+    displayFormatSelect.addEventListener('change', () => {
+      displayFormatDivider = parseInt(displayFormatSelect.value, 10);
+      // setDefaultFormatText();
+      updateFormatLabel();
+      renderTreemap();
+    });
+
+    formatTextInput.addEventListener('input', () => {
+      updateFormatLabel();
+    });
+
+    fileInput.addEventListener('change', function (event) {
+      const file = event.target.files[0];
+      if (!file) return alert("Please select an XLSX file.");
+      const reader = new FileReader();
+
+      reader.onload = function (e) {
+        try {
+          // Parse XLSX into a workbook
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+
+          // Get the sheet named "data"
+          const worksheet = workbook.Sheets["data"];
+          if (!worksheet) {
+            alert("Worksheet 'data' not found in the XLSX file.");
+            return;
+          }
+
+          // Convert worksheet to JSON
+          const jsonData = XLSX.utils.sheet_to_json(worksheet);
+          if (!jsonData || jsonData.length === 0) {
+            alert("Sheet 'data' appears to be empty or improperly formatted.");
+            return;
+          }
+
+          rawData = jsonData; // Save globally
+          // alert("File loaded successfully! Now enter a title and click 'Draw Diagram'.");
+        } catch (error) {
+          console.error(error);
+          alert("Error parsing XLSX file.");
+        }
+      };
+
+      reader.onerror = function () {
+        alert("Error reading file.");
+      };
+
+      // Read the XLSX file as ArrayBuffer
+      reader.readAsArrayBuffer(file);
+    });
+
+    drawBtn.addEventListener('click', () => {
+      const titleText = titleInput.value.trim();
+      if (!titleText) return alert("Geef een titel op");
+      if (!rawData) return alert("Sheet 'data' onbtreekt in excel bestand");
+
+      diagramTitle.innerText = titleText;
+
+      document.getElementById('title-container').classList.add('hidden');
+      exportContainer.classList.remove('hidden');
+      exportWrapper.classList.remove('hidden');
+
+      // setDefaultFormatText();
+      updateFormatLabel();
+      buildTreemap(rawData);
+    });
+
+    exportBtn.addEventListener('click', () => {
+      html2canvas(exportWrapper, {
+        backgroundColor: '#ffffff',
+        scrollY: -window.scrollY
+      }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = 'treemap_export.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      });
+    });
+
+    window.addEventListener('resize', () => {
+      renderTreemap();
+    });
+
+    // Helper functions
+    function setDefaultFormatText() {
+      const defaultLabel = formatLabels[displayFormatDivider] || "";
+      formatTextInput.value = defaultLabel;
+    }
+
+    function updateFormatLabel() {
+      const label = formatTextInput.value.trim();
+      diagramFormat.textContent = label;
+    }
+
+    function formatNumber(num) {
+      // Rounds to integer and uses dot as thousands separator
+      return Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+
+    // Build treemap
+    function buildTreemap(data) {
+      container.selectAll("svg").remove();
+      legendContainer.selectAll("*").remove();
+
+      // Prepare hierarchical data (expects columns: cluster, category, item, value)
+      const nestedData = d3.group(data, d => d.cluster, d => d.category);
+
+      const hierarchyData = {
+        name: "root",
+        children: Array.from(nestedData, ([clusterKey, categories]) => ({
+          name: clusterKey,
+          children: Array.from(categories, ([categoryKey, items]) => ({
+            name: categoryKey,
+            children: items.map(d => ({
+              name: d.item,
+              value: +d.value // numeric
+            }))
+          }))
+        }))
+      };
+
+      // Build legend
+      const clusters = Array.from(nestedData.keys());
+      color.domain(clusters);
+
+      clusters.forEach(cluster => {
+        const legendItem = legendContainer.append("div").attr("class", "legend-item");
+        legendItem.append("div").attr("class", "legend-color").style("background-color", color(cluster));
+        legendItem.append("span").text(cluster);
+      });
+
+      // Build root hierarchy
+      rootData = d3.hierarchy(hierarchyData)
+        .sum(d => d.value)
+        .sort((a, b) => b.value - a.value);
+
+      renderTreemap();
+    }
+
+    // Render treemap
+    function renderTreemap() {
+      if (!rootData) return;
+
+      const width = treemapContainer.clientWidth;
+      const height = treemapContainer.clientHeight;
+
+      container.selectAll("svg").remove();
+
+      const svg = container.append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+      treemapLayout.size([width, height])(rootData);
+
+      const nodes = svg.selectAll("g")
+        .data(rootData.leaves(), d => d.data.name)
+        .join("g")
+        .attr("transform", d => `translate(${d.x0},${d.y0})`);
+
+      // Draw rectangles and add tooltip
+      nodes.append("rect")
+        .attr("width", d => d.x1 - d.x0)
+        .attr("height", d => d.y1 - d.y0)
+        .attr("fill", d => color(d.parent.parent.data.name))
+        .attr("stroke", "#fff")
+        .on("mouseover", (event, d) => {
+          d3.select(event.currentTarget).style("opacity", 0.7);
+
+          // Build tooltip text
+          const prefix = prefixInput.value.trim();
+          const postfix = postfixInput.value.trim();
+          const prefixSpace = prefix.length > 0 ? prefix + " " : "";
+          const postfixSpace = postfix.length > 0 ? " " + postfix : "";
+
+          const formattedValue = formatNumber(d.data.value / displayFormatDivider);
+          const tooltipValue = prefixSpace + formattedValue + postfixSpace;
+
+          tooltip.style("opacity", 1);
+          tooltip.html(`
+            <strong>Cluster:</strong> ${d.parent.parent.data.name}<br/>
+            <strong>Categorie:</strong> ${d.parent.data.name}<br/>
+            <strong>Item:</strong> ${d.data.name}<br/>
+            <strong>Value:</strong> ${tooltipValue}
+          `);
+        })
+        .on("mousemove", (event) => {
+          tooltip
+            .style("left", (event.pageX + 10) + "px")
+            .style("top", (event.pageY + 10) + "px");
+        })
+        .on("mouseout", (event) => {
+          d3.select(event.currentTarget).style("opacity", 1);
+          tooltip.style("opacity", 0);
+        });
+
+      // Off-DOM <svg> for text measurement
+      const measureSvg = d3.select("body")
+        .append("svg")
+        .style("position", "absolute")
+        .style("visibility", "hidden");
+
+      const measureText = measureSvg.append("text").attr("font-family", "Arial");
+
+      // Text-fitting logic for item labels
+      nodes.each(function (d) {
+        const nodeGroup = d3.select(this);
+        const nodeWidth = d.x1 - d.x0;
+        const nodeHeight = d.y1 - d.y0;
+
+        const rawValue = d.data.value;
+        const displayValue = rawValue / displayFormatDivider;
+        const roundedValue = Math.round(displayValue);
+        if (rawValue === 0 || roundedValue === 0 || isNaN(rawValue) || isNaN(roundedValue)) return;
+
+        const formattedValue = formatNumber(displayValue);
+
+        // Incorporate prefix/postfix with spacing
+        const prefix = prefixInput.value.trim();
+        const postfix = postfixInput.value.trim();
+        const prefixSpace = prefix.length > 0 ? prefix + " " : "";
+        const postfixSpace = postfix.length > 0 ? " " + postfix : "";
+
+        const itemText = d.data.name;
+        const valueText = prefixSpace + formattedValue + postfixSpace;
+
+        const defaultFontSize = 12;
+        const minFontSize = 6;
+
+        // Measure item text width
+        measureText.attr("font-size", defaultFontSize).text(itemText);
+        const titleWidth = measureText.node().getComputedTextLength();
+
+        // Measure value text width
+        measureText.text(valueText);
+        const valueWidth = measureText.node().getComputedTextLength();
+
+        const spacingNeeded = nodeHeight > 28;
+        const fitsHorizontally = (Math.max(titleWidth, valueWidth) <= nodeWidth - 8);
+
+        if (fitsHorizontally && spacingNeeded) {
+          // Title and value on separate lines
+          nodeGroup.append("text")
+            .attr("x", nodeWidth / 2)
+            .attr("y", nodeHeight / 2 - defaultFontSize * 0.55) // move closer to center
+            .attr("text-anchor", "middle")
+            .attr("fill", "#fff")
+            .attr("font-size", defaultFontSize)
+            .text(itemText);
+
+          nodeGroup.append("text")
+            .attr("x", nodeWidth / 2)
+            .attr("y", nodeHeight / 2 + defaultFontSize * 0.55) // move closer to center
+            .attr("text-anchor", "middle")
+            .attr("fill", "#fff")
+            .attr("font-size", defaultFontSize)
+            .text(valueText);
+
+        } else if (fitsHorizontally && !spacingNeeded) {
+          // Title and value on same line
+          const inlineText = `${itemText} ${valueText}`;
+          measureText.text(inlineText);
+          const combinedWidth = measureText.node().getComputedTextLength();
+
+          if (combinedWidth <= nodeWidth - 8) {
+            nodeGroup.append("text")
+              .attr("x", nodeWidth / 2)
+              .attr("y", nodeHeight / 2)
+              .attr("text-anchor", "middle")
+              .attr("fill", "#fff")
+              .attr("font-size", defaultFontSize)
+              .text(inlineText);
+          }
+
+        } else {
+          // Try vertical or scaled approach
+          const inlineText = `${itemText} ${valueText}`;
+          measureText.text(inlineText);
+          const combinedHeight = measureText.node().getComputedTextLength(); // approximate
+
+          const fitsVertically = (combinedHeight <= nodeHeight - 8);
+
+          if (fitsVertically) {
+            // Rotate -90
+            const textGroup = nodeGroup.append("g")
+              .attr("transform", `translate(${nodeWidth / 2},${nodeHeight / 2}) rotate(-90)`);
+
+            textGroup.append("text")
+              .attr("text-anchor", "middle")
+              .attr("alignment-baseline", "middle")
+              .attr("fill", "#fff")
+              .attr("font-size", defaultFontSize)
+              .text(inlineText);
+
+          } else {
+            // Scale to fit
+            const textLength = measureText.text(valueText).node().getComputedTextLength();
+
+            let scaleWidth = (nodeWidth - 8) / textLength;
+            let scaleHeight = (nodeHeight - 8) / defaultFontSize;
+
+            let scale = Math.min(scaleWidth, scaleHeight, 1);
+            let fontSize = Math.max(defaultFontSize * scale, minFontSize);
+
+            nodeGroup.append("text")
+              .attr("x", nodeWidth / 2)
+              .attr("y", nodeHeight / 2)
+              .attr("text-anchor", "middle")
+              .attr("fill", "#fff")
+              .attr("font-size", fontSize)
+              .text(valueText);
+          }
+        }
+      });
+
+      measureSvg.remove();
+    }
+  </script>
+</body>
+
+</html>
