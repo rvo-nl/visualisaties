@@ -118,3 +118,6 @@ INKTVIS/A/v6/js/initSankey.js
 INKTVIS/A/v7/.cursorignore
 INKTVIS/A/v7/index_reference.html
 /ESA/A/v1/data
+/INKTVIS/A/v8/data
+INKTVIS/A/v8/index_reference.html
+INKTVIS/A/v8/data_public/scenarios_lut.csv
