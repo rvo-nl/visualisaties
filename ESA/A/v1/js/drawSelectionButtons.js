@@ -159,7 +159,7 @@ function drawSelectionButtons (config) {
       {id: 'TNO.ADAPT', title: 'TNO | ADAPT', color: colorTNO},
       {id: 'TNO.TRANSFORM', title: 'TNO | TRANSFORM', color: colorTNO},
       {id: 'TNO.TRANSFORM.C.EN.I', title: 'TNO | TRANSFORM | Competitief & Import', color: colorTNO},
-      {id: 'TNO.TRANSFORM.MC', title: 'TNO | TRANSFORM | Competitief', color: colorTNO},
+      {id: 'TNO.TRANSFORM.MC', title: 'TNO | TRANSFORM | Minder Competitief', color: colorTNO},
       {id: 'TNO.TRANSFORM.MC.EN.I', title: 'TNO | TRANSFORM | Minder Competitief & Import', color: colorTNO},
       {id: 'PBL.PR40', title: 'PBL | TVKN | Pragmatisch Ruim 40', color: colorPBL},
       {id: 'PBL.SR20', title: 'PBL | TVKN | Specifiek Ruim 20', color: colorPBL},
